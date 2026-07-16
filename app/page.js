@@ -148,8 +148,8 @@ function HomeScreen({ go, speak }) {
       <div className="ar-toolbar"><button onClick={() => setCamera(!camera)}><Icon name={camera ? "fa-video" : "fa-video-slash"} /></button><span>LIVE AR TRANSLATION</span><button><Icon name="fa-bolt" /></button></div>
       <div className="scan-line" />
       <div className="street-scene"><div className="building b1" /><div className="building b2" /><div className="road" /><div className="street-sign">前门大街</div></div>
-      <div className="translation-bubble bubble-one"><small>DETECTED · 中文</small><b>前门大街</b><span>Qianmen Street</span><em>ቺያንሜን ጎዳና</em></div>
-      <div className="translation-bubble bubble-two"><small>LIVE · 98%</small><b>出口</b><span>Exit · መውጫ</span></div>
+      <div className="translation-bubble bubble-one"><small>DETECTED · 中文</small><b>前门大街</b><span>Qianmen Street</span><em lang="am">ቺያንሜን ጎዳና</em></div>
+      <div className="translation-bubble bubble-two"><small>LIVE · 98%</small><b>出口</b><span>Exit · <strong lang="am">መውጫ</strong></span></div>
       <div className="focus-corners"><i /><i /><i /><i /></div>
       <div className="copilot"><span className="copilot-core"><i /></span><div><small>NOVA · AI COPILOT</small><b>I found 2 translations</b></div></div>
       <div className="gesture-hint"><i /><span>Swipe to scan</span></div>
@@ -159,7 +159,7 @@ function HomeScreen({ go, speak }) {
       <div className="voice-title"><span>{listening ? "NEURAL LISTENING" : "VOICE TRANSLATOR"}</span><small>{listening ? "Speak naturally…" : "Tap the core and start speaking"}</small></div>
       <button className="voice-core" onClick={pulseVoice} aria-label="Start voice translation"><span><Icon name={listening ? "fa-wave-square" : "fa-microphone"} /></span></button>
       <div className="waveform" aria-hidden="true">{[16,28,44,25,54,34,63,30,48,22,39,18].map((height, i) => <i key={i} style={{ "--wave": `${height}px`, "--delay": `${i * .06}s` }} />)}</div>
-      <div className="voice-result"><span>你好，很高兴认识你</span><b>Hello, nice to meet you</b><em>ሰላም፣ ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል</em></div>
+      <div className="voice-result"><span>你好，很高兴认识你</span><b>Hello, nice to meet you</b><em lang="am">ሰላም፣ ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል</em></div>
     </section>
     <div className="mode-heading"><div><span>NEURAL MODES</span><h2>Translate beyond words</h2></div><button onClick={() => go("discover")}>View all <Icon name="fa-arrow-right" /></button></div>
     <div className="cyber-modes">
@@ -192,7 +192,7 @@ function DiscoverScreen({ query, setQuery, activeCategory, setActiveCategory, fi
 }
 
 function WordRow({ word, isSaved, toggleSaved, speak, open }) {
-  return <article className="word-row-new" onClick={open}><button className="word-audio" onClick={(e) => { e.stopPropagation(); speak(word.zh); }}><Icon name="fa-volume-high" /></button><div className="word-copy"><div><strong>{word.zh}</strong><span>{word.py}</span></div><p>{word.en}<span />{word.am}</p></div><button className={`save-button ${isSaved ? "saved" : ""}`} onClick={(e) => { e.stopPropagation(); toggleSaved(word.zh); }} aria-label="Save word"><Icon name={isSaved ? "fa-bookmark" : "fa-regular fa-bookmark"} /></button></article>;
+  return <article className="word-row-new" onClick={open}><button className="word-audio" onClick={(e) => { e.stopPropagation(); speak(word.zh); }}><Icon name="fa-volume-high" /></button><div className="word-copy"><div><strong>{word.zh}</strong><span>{word.py}</span></div><p><span className="word-en">{word.en}</span><span className="word-am" lang="am">{word.am}</span></p></div><button className={`save-button ${isSaved ? "saved" : ""}`} onClick={(e) => { e.stopPropagation(); toggleSaved(word.zh); }} aria-label="Save word"><Icon name={isSaved ? "fa-bookmark" : "fa-regular fa-bookmark"} /></button></article>;
 }
 
 function LearnScreen({ speak, setSelectedWord }) {
@@ -202,7 +202,7 @@ function LearnScreen({ speak, setSelectedWord }) {
     <div className="lesson-top"><button disabled={!index} onClick={() => setIndex(index - 1)}><Icon name="fa-arrow-left" /></button><div><span>LESSON {index + 1} OF {words.length}</span><i><b style={{ width: `${((index + 1) / words.length) * 100}%` }} /></i></div><button onClick={() => setSelectedWord(word)}><Icon name="fa-ellipsis" /></button></div>
     <section className="practice-card">
       <span className="practice-label">LISTEN & REPEAT</span><strong>{word.zh}</strong><em>{word.py}</em><button className="big-sound" onClick={() => speak(word.zh)}><span><Icon name="fa-volume-high" /></span>Play slowly</button>
-      <div className="meaning-grid"><div><small>ENGLISH</small><b>{word.en}</b></div><div><small>አማርኛ</small><b>{word.am}</b></div></div>
+      <div className="meaning-grid"><div><small>ENGLISH</small><b>{word.en}</b></div><div><small lang="am">አማርኛ</small><b lang="am">{word.am}</b></div></div>
     </section>
     <div className="example-card"><span><Icon name="fa-message" /></span><div><small>IN A SENTENCE</small><b>{word.example}</b><em>{word.exampleEn}</em></div><button onClick={() => speak(word.example)}><Icon name="fa-volume-high" /></button></div>
     <button className="record-action" onClick={() => speak(word.zh)}><span><Icon name="fa-microphone" /></span><div><b>Hold to practice</b><small>Tap to hear the model pronunciation</small></div></button>
@@ -215,7 +215,7 @@ function GrammarScreen({ setSelectedGrammar }) {
     <PageTitle eyebrow="GRAMMAR STUDIO" title="Understand the pattern." text="Clear explanations with English and Amharic support." />
     <section className="grammar-hero-new"><span>语</span><div><small>RECOMMENDED FOR YOU</small><h2>Chinese word order</h2><p>Subject + Time + Place + Verb + Object</p><button onClick={() => setSelectedGrammar(grammar[0])}>Start lesson <Icon name="fa-arrow-right" /></button></div></section>
     <div className="section-head inline"><h2>Core foundations</h2><span>4 lessons</span></div>
-    <div className="grammar-grid-new">{grammar.map((item, index) => <button key={item.mark} onClick={() => setSelectedGrammar(item)}><span className={item.color}>{item.mark}</span><div><small>{item.level.toUpperCase()} · {item.minutes} MIN</small><b>{item.title}</b><em>{item.am}</em><p>{item.desc}</p></div><i><Icon name="fa-chevron-right" /></i></button>)}</div>
+    <div className="grammar-grid-new">{grammar.map((item, index) => <button key={item.mark} onClick={() => setSelectedGrammar(item)}><span className={item.color}>{item.mark}</span><div><small>{item.level.toUpperCase()} · {item.minutes} MIN</small><b>{item.title}</b><em lang="am">{item.am}</em><p>{item.desc}</p></div><i><Icon name="fa-chevron-right" /></i></button>)}</div>
   </>;
 }
 
@@ -231,7 +231,7 @@ function ProfileScreen({ saved }) {
 function PageTitle({ eyebrow, title, text }) { return <div className="page-title"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{text}</p></div>; }
 
 function WordSheet({ word, saved, close, speak, toggleSaved }) {
-  return <div className="sheet-backdrop" onMouseDown={(e) => e.target === e.currentTarget && close()}><section className="detail-sheet"><div className="sheet-handle" /><button className="sheet-close" onClick={close}><Icon name="fa-xmark" /></button><div className="sheet-word"><button onClick={() => speak(word.zh)}><Icon name="fa-volume-high" /></button><strong>{word.zh}</strong><span>{word.py}</span></div><div className="sheet-translations"><div><small>ENGLISH</small><b>{word.en}</b></div><div><small>አማርኛ</small><b>{word.am}</b></div></div><div className="sheet-example"><small>EXAMPLE</small><strong>{word.example}</strong><span>{word.exampleEn}</span><button onClick={() => speak(word.example)}><Icon name="fa-volume-high" /></button></div><button className={`primary-action ${saved ? "secondary" : ""}`} onClick={() => toggleSaved(word.zh)}><Icon name="fa-bookmark" /> {saved ? "Saved to your phrases" : "Save this phrase"}</button></section></div>;
+  return <div className="sheet-backdrop" onMouseDown={(e) => e.target === e.currentTarget && close()}><section className="detail-sheet"><div className="sheet-handle" /><button className="sheet-close" onClick={close}><Icon name="fa-xmark" /></button><div className="sheet-word"><button onClick={() => speak(word.zh)}><Icon name="fa-volume-high" /></button><strong>{word.zh}</strong><span>{word.py}</span></div><div className="sheet-translations"><div><small>ENGLISH</small><b>{word.en}</b></div><div><small lang="am">አማርኛ</small><b lang="am">{word.am}</b></div></div><div className="sheet-example"><small>EXAMPLE</small><strong>{word.example}</strong><span>{word.exampleEn}</span><button onClick={() => speak(word.example)}><Icon name="fa-volume-high" /></button></div><button className={`primary-action ${saved ? "secondary" : ""}`} onClick={() => toggleSaved(word.zh)}><Icon name="fa-bookmark" /> {saved ? "Saved to your phrases" : "Save this phrase"}</button></section></div>;
 }
 
 function GrammarSheet({ item, close, speak }) {
