@@ -1,433 +1,406 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { getSupabase, isSupabaseConfigured } from "../lib/supabase";
 
-const categories = [
-  { id: "basics", name: "Basics", am: "መጀመሪያ", icon: "fa-seedling", color: "mint", progress: 76 },
-  { id: "essentials", name: "Essentials", am: "መሰረታዊ", icon: "fa-sparkles", color: "blue", progress: 72 },
-  { id: "daily", name: "Daily life", am: "ዕለታዊ ኑሮ", icon: "fa-sun", color: "rose", progress: 54 },
-  { id: "conversation", name: "Conversation", am: "ውይይት", icon: "fa-comments", color: "violet", progress: 48 },
-  { id: "food", name: "Food & drink", am: "ምግብ እና መጠጥ", icon: "fa-bowl-food", color: "orange", progress: 39 },
-  { id: "shopping", name: "Shopping", am: "ግብይት", icon: "fa-bag-shopping", color: "mint", progress: 34 },
-  { id: "travel", name: "Travel", am: "ጉዞ", icon: "fa-plane", color: "blue", progress: 31 },
-  { id: "time", name: "Time & numbers", am: "ጊዜ እና ቁጥር", icon: "fa-clock", color: "violet", progress: 29 },
-  { id: "family", name: "Family", am: "ቤተሰብ", icon: "fa-people-roof", color: "rose", progress: 26 },
-  { id: "health", name: "Health", am: "ጤና", icon: "fa-heart-pulse", color: "orange", progress: 21 },
-  { id: "business", name: "Business", am: "ንግድ", icon: "fa-briefcase", color: "navy", progress: 18 },
+const countries = [
+  { iso: "ET", name: "Ethiopia", flag: "🇪🇹", dial: "+251", placeholder: "9XXXXXXXX" },
+  { iso: "ER", name: "Eritrea", flag: "🇪🇷", dial: "+291", placeholder: "7XXXXXX" },
+  { iso: "KE", name: "Kenya", flag: "🇰🇪", dial: "+254", placeholder: "7XXXXXXXX" },
+  { iso: "DJ", name: "Djibouti", flag: "🇩🇯", dial: "+253", placeholder: "77XXXXXX" },
+  { iso: "SO", name: "Somalia", flag: "🇸🇴", dial: "+252", placeholder: "6XXXXXXX" },
+  { iso: "SD", name: "Sudan", flag: "🇸🇩", dial: "+249", placeholder: "9XXXXXXXX" },
+  { iso: "AE", name: "United Arab Emirates", flag: "🇦🇪", dial: "+971", placeholder: "5XXXXXXXX" },
+  { iso: "SA", name: "Saudi Arabia", flag: "🇸🇦", dial: "+966", placeholder: "5XXXXXXXX" },
+  { iso: "GB", name: "United Kingdom", flag: "🇬🇧", dial: "+44", placeholder: "7XXXXXXXXX" },
+  { iso: "US", name: "United States", flag: "🇺🇸", dial: "+1", placeholder: "XXXXXXXXXX" },
+  { iso: "CN", name: "China", flag: "🇨🇳", dial: "+86", placeholder: "1XXXXXXXXXX" },
 ];
 
-const words = [
-  { zh: "我", py: "wǒ", en: "I / me", am: "እኔ", category: "basics", example: "我是学生。", exampleEn: "I am a student." },
-  { zh: "你", py: "nǐ", en: "You", am: "አንተ / አንቺ", category: "basics", example: "你好吗？", exampleEn: "How are you?" },
-  { zh: "他", py: "tā", en: "He / him", am: "እሱ", category: "basics", example: "他是老师。", exampleEn: "He is a teacher." },
-  { zh: "她", py: "tā", en: "She / her", am: "እሷ", category: "basics", example: "她很忙。", exampleEn: "She is busy." },
-  { zh: "我们", py: "wǒ men", en: "We / us", am: "እኛ", category: "basics", example: "我们一起学习。", exampleEn: "We study together." },
-  { zh: "你好", py: "nǐ hǎo", en: "Hello", am: "ሰላም", category: "essentials", example: "你好，很高兴认识你。", exampleEn: "Hello, nice to meet you." },
-  { zh: "早上好", py: "zǎo shang hǎo", en: "Good morning", am: "እንደምን አደርክ / አደርሽ", category: "essentials", example: "早上好，今天好吗？", exampleEn: "Good morning, how are you today?" },
-  { zh: "晚上好", py: "wǎn shang hǎo", en: "Good evening", am: "እንደምን አመሸህ / አመሸሽ", category: "essentials", example: "晚上好，欢迎你。", exampleEn: "Good evening, welcome." },
-  { zh: "谢谢", py: "xiè xie", en: "Thank you", am: "አመሰግናለሁ", category: "essentials", example: "谢谢你的帮助。", exampleEn: "Thank you for your help." },
-  { zh: "不客气", py: "bú kè qi", en: "You are welcome", am: "ምንም አይደለም", category: "essentials", example: "谢谢！不客气。", exampleEn: "Thank you! You are welcome." },
-  { zh: "对不起", py: "duì bu qǐ", en: "Sorry", am: "ይቅርታ", category: "essentials", example: "对不起，我迟到了。", exampleEn: "Sorry, I am late." },
-  { zh: "没关系", py: "méi guān xi", en: "It is okay", am: "ችግር የለም", category: "essentials", example: "没关系，请进。", exampleEn: "It is okay, please come in." },
-  { zh: "很高兴认识你", py: "hěn gāoxìng rènshi nǐ", en: "Nice to meet you", am: "ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል", category: "conversation", example: "你好，很高兴认识你。", exampleEn: "Hello, nice to meet you." },
-  { zh: "请再说一遍", py: "qǐng zài shuō yí biàn", en: "Please say it again", am: "እባክዎ እንደገና ይናገሩ", category: "conversation", example: "对不起，请再说一遍。", exampleEn: "Sorry, please say it again." },
-  { zh: "你叫什么名字？", py: "nǐ jiào shén me míng zi?", en: "What is your name?", am: "ስምህ / ስምሽ ማን ነው?", category: "conversation", example: "你好，你叫什么名字？", exampleEn: "Hello, what is your name?" },
-  { zh: "我叫马希尔", py: "wǒ jiào Mǎ xī ěr", en: "My name is Mahir", am: "ስሜ ማሂር ነው", category: "conversation", example: "你好，我叫马希尔。", exampleEn: "Hello, my name is Mahir." },
-  { zh: "你会说英语吗？", py: "nǐ huì shuō Yīng yǔ ma?", en: "Do you speak English?", am: "እንግሊዝኛ መናገር ትችላለህ / ትችያለሽ?", category: "conversation", example: "请问，你会说英语吗？", exampleEn: "Excuse me, do you speak English?" },
-  { zh: "我不太明白", py: "wǒ bú tài míng bai", en: "I do not quite understand", am: "በደንብ አልገባኝም", category: "conversation", example: "对不起，我不太明白。", exampleEn: "Sorry, I do not quite understand." },
-  { zh: "机场", py: "jī chǎng", en: "Airport", am: "አውሮፕላን ማረፊያ", category: "travel", example: "去机场要多长时间？", exampleEn: "How long does it take to the airport?" },
-  { zh: "酒店", py: "jiǔ diàn", en: "Hotel", am: "ሆቴል", category: "travel", example: "酒店在哪里？", exampleEn: "Where is the hotel?" },
-  { zh: "出租车", py: "chū zū chē", en: "Taxi", am: "ታክሲ", category: "travel", example: "我想叫出租车。", exampleEn: "I want to call a taxi." },
-  { zh: "火车站", py: "huǒ chē zhàn", en: "Train station", am: "የባቡር ጣቢያ", category: "travel", example: "火车站远吗？", exampleEn: "Is the train station far?" },
-  { zh: "洗手间", py: "xǐ shǒu jiān", en: "Bathroom", am: "መጸዳጃ ቤት", category: "daily", example: "洗手间在哪里？", exampleEn: "Where is the bathroom?" },
-  { zh: "家", py: "jiā", en: "Home", am: "ቤት", category: "daily", example: "我回家了。", exampleEn: "I am going home." },
-  { zh: "工作", py: "gōng zuò", en: "Work", am: "ሥራ", category: "daily", example: "我今天工作很忙。", exampleEn: "I am busy at work today." },
-  { zh: "学习", py: "xué xí", en: "Study / learn", am: "መማር", category: "daily", example: "我每天学习中文。", exampleEn: "I study Chinese every day." },
-  { zh: "手机", py: "shǒu jī", en: "Phone", am: "ስልክ", category: "daily", example: "我的手机没电了。", exampleEn: "My phone has no battery." },
-  { zh: "水", py: "shuǐ", en: "Water", am: "ውሃ", category: "food", example: "请给我一杯水。", exampleEn: "Please give me a cup of water." },
-  { zh: "咖啡", py: "kā fēi", en: "Coffee", am: "ቡና", category: "food", example: "我想喝咖啡。", exampleEn: "I want to drink coffee." },
-  { zh: "米饭", py: "mǐ fàn", en: "Rice", am: "ሩዝ", category: "food", example: "我想吃米饭。", exampleEn: "I want to eat rice." },
-  { zh: "菜单", py: "cài dān", en: "Menu", am: "የምግብ ዝርዝር", category: "food", example: "请给我菜单。", exampleEn: "Please give me the menu." },
-  { zh: "我想要这个", py: "wǒ xiǎng yào zhè ge", en: "I would like this", am: "ይህንን እፈልጋለሁ", category: "food", example: "你好，我想要这个。", exampleEn: "Hello, I would like this." },
-  { zh: "多少钱？", py: "duō shao qián?", en: "How much is it?", am: "ስንት ነው?", category: "business", example: "这个多少钱？", exampleEn: "How much is this?" },
-  { zh: "太贵了", py: "tài guì le", en: "Too expensive", am: "በጣም ውድ ነው", category: "shopping", example: "这个太贵了。", exampleEn: "This is too expensive." },
-  { zh: "便宜一点", py: "pián yi yì diǎn", en: "A little cheaper", am: "ትንሽ ይቀንሱ", category: "shopping", example: "可以便宜一点吗？", exampleEn: "Can it be a little cheaper?" },
-  { zh: "我要买这个", py: "wǒ yào mǎi zhè ge", en: "I want to buy this", am: "ይህንን መግዛት እፈልጋለሁ", category: "shopping", example: "我要买这个。", exampleEn: "I want to buy this." },
-  { zh: "现金", py: "xiàn jīn", en: "Cash", am: "ጥሬ ገንዘብ", category: "shopping", example: "可以用现金吗？", exampleEn: "Can I use cash?" },
-  { zh: "今天", py: "jīn tiān", en: "Today", am: "ዛሬ", category: "time", example: "今天我很忙。", exampleEn: "Today I am busy." },
-  { zh: "明天", py: "míng tiān", en: "Tomorrow", am: "ነገ", category: "time", example: "明天我们见面。", exampleEn: "Tomorrow we will meet." },
-  { zh: "现在", py: "xiàn zài", en: "Now", am: "አሁን", category: "time", example: "我现在有时间。", exampleEn: "I have time now." },
-  { zh: "几点？", py: "jǐ diǎn?", en: "What time?", am: "ስንት ሰዓት?", category: "time", example: "现在几点？", exampleEn: "What time is it now?" },
-  { zh: "爸爸", py: "bà ba", en: "Father", am: "አባት", category: "family", example: "我爸爸在家。", exampleEn: "My father is at home." },
-  { zh: "妈妈", py: "mā ma", en: "Mother", am: "እናት", category: "family", example: "我妈妈很好。", exampleEn: "My mother is well." },
-  { zh: "朋友", py: "péng yǒu", en: "Friend", am: "ጓደኛ", category: "family", example: "他是我的朋友。", exampleEn: "He is my friend." },
-  { zh: "孩子", py: "hái zi", en: "Child", am: "ልጅ", category: "family", example: "孩子在学校。", exampleEn: "The child is at school." },
-  { zh: "我不舒服", py: "wǒ bù shū fu", en: "I do not feel well", am: "አልተመቸኝም", category: "health", example: "今天我不舒服。", exampleEn: "I do not feel well today." },
-  { zh: "医院", py: "yī yuàn", en: "Hospital", am: "ሆስፒታል", category: "health", example: "医院在哪里？", exampleEn: "Where is the hospital?" },
-  { zh: "药", py: "yào", en: "Medicine", am: "መድኃኒት", category: "health", example: "我需要药。", exampleEn: "I need medicine." },
-  { zh: "帮助", py: "bāng zhù", en: "Help", am: "እርዳታ", category: "health", example: "请帮助我。", exampleEn: "Please help me." },
-  { zh: "会议", py: "huì yì", en: "Meeting", am: "ስብሰባ", category: "business", example: "会议几点开始？", exampleEn: "What time does the meeting start?" },
-  { zh: "合同", py: "hé tong", en: "Contract", am: "ውል", category: "business", example: "这是合同。", exampleEn: "This is the contract." },
-  { zh: "付款", py: "fù kuǎn", en: "Payment", am: "ክፍያ", category: "business", example: "付款已经完成。", exampleEn: "The payment is complete." },
-  { zh: "明天见", py: "míng tiān jiàn", en: "See you tomorrow", am: "ነገ እንገናኝ", category: "daily", example: "好的，明天见！", exampleEn: "Okay, see you tomorrow!" },
+const phrases = [
+  { zh: "你好", py: "nǐ hǎo", en: "Hello", am: "ሰላም", group: "Essentials", progress: 92 },
+  { zh: "谢谢", py: "xiè xie", en: "Thank you", am: "አመሰግናለሁ", group: "Essentials", progress: 84 },
+  { zh: "很高兴认识你", py: "hěn gāo xìng rèn shi nǐ", en: "Nice to meet you", am: "ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል", group: "Conversation", progress: 78 },
+  { zh: "请再说一遍", py: "qǐng zài shuō yí biàn", en: "Please say it again", am: "እባክዎ እንደገና ይናገሩ", group: "Conversation", progress: 63 },
+  { zh: "我想要这个", py: "wǒ xiǎng yào zhè ge", en: "I would like this", am: "ይህንን እፈልጋለሁ", group: "Daily life", progress: 58 },
+  { zh: "多少钱？", py: "duō shao qián", en: "How much is it?", am: "ስንት ነው?", group: "Shopping", progress: 49 },
+  { zh: "洗手间在哪里？", py: "xǐ shǒu jiān zài nǎ lǐ", en: "Where is the bathroom?", am: "መጸዳጃ ቤቱ የት ነው?", group: "Travel", progress: 44 },
+  { zh: "我不太明白", py: "wǒ bú tài míng bai", en: "I do not quite understand", am: "በደንብ አልገባኝም", group: "Conversation", progress: 39 },
 ];
 
-const grammar = [
-  { mark: "是", title: "Identity with 是", am: "ማንነትን በ 是 መግለጽ", desc: "Connect a person or thing to a noun.", formula: "Subject + 是 + Noun", example: "我是学生。", py: "Wǒ shì xuésheng.", en: "I am a student.", level: "Beginner", minutes: 5, color: "mint" },
-  { mark: "吗", title: "Questions with 吗", am: "ጥያቄዎች በ 吗", desc: "Turn a statement into a yes/no question.", formula: "Statement + 吗？", example: "你是老师吗？", py: "Nǐ shì lǎoshī ma?", en: "Are you a teacher?", level: "Beginner", minutes: 6, color: "blue" },
-  { mark: "不", title: "Negatives with 不", am: "አሉታዊ አረፍተ ነገር", desc: "Negate habits, facts and future actions.", formula: "Subject + 不 + Verb", example: "我不喝咖啡。", py: "Wǒ bù hē kāfēi.", en: "I do not drink coffee.", level: "Beginner", minutes: 7, color: "rose" },
-  { mark: "的", title: "Possession with 的", am: "ባለቤትነት በ 的", desc: "Show that something belongs to someone.", formula: "Owner + 的 + Object", example: "这是我的书。", py: "Zhè shì wǒ de shū.", en: "This is my book.", level: "Beginner", minutes: 5, color: "violet" },
-  { mark: "在", title: "Location with 在", am: "ቦታን በ 在 መግለጽ", desc: "Say where a person or thing is located.", formula: "Subject + 在 + Place", example: "我在家。", py: "Wǒ zài jiā.", en: "I am at home.", level: "Beginner", minutes: 6, color: "mint" },
-  { mark: "有", title: "Have with 有", am: "ያለውን በ 有 መግለጽ", desc: "Talk about possession or existence.", formula: "Subject + 有 + Object", example: "我有手机。", py: "Wǒ yǒu shǒujī.", en: "I have a phone.", level: "Beginner", minutes: 6, color: "blue" },
-  { mark: "想", title: "Want to with 想", am: "ፍላጎትን በ 想 መግለጽ", desc: "Express what you want to do.", formula: "Subject + 想 + Verb", example: "我想喝水。", py: "Wǒ xiǎng hē shuǐ.", en: "I want to drink water.", level: "Beginner", minutes: 7, color: "rose" },
-  { mark: "要", title: "Need / will with 要", am: "ፍላጎት ወይም ዕቅድ በ 要", desc: "Ask for something or talk about a near plan.", formula: "Subject + 要 + Object / Verb", example: "我要买这个。", py: "Wǒ yào mǎi zhège.", en: "I want to buy this.", level: "Beginner", minutes: 8, color: "violet" },
+const lessons = [
+  { title: "First conversations", subtitle: "Greetings, names and polite responses", icon: "会", progress: 76, tone: "cyan" },
+  { title: "Daily essentials", subtitle: "The phrases you will use every day", icon: "日", progress: 61, tone: "violet" },
+  { title: "Travel confidently", subtitle: "Directions, transport and hotels", icon: "行", progress: 42, tone: "amber" },
+  { title: "Business basics", subtitle: "Prices, meetings and introductions", icon: "商", progress: 28, tone: "blue" },
 ];
 
-const basics = [
-  { title: "Pronouns", am: "ተውላጠ ስሞች", items: ["我", "你", "他", "她", "我们"] },
-  { title: "Polite words", am: "የአክብሮት ቃላት", items: ["请", "谢谢", "对不起", "没关系"] },
-  { title: "Daily actions", am: "ዕለታዊ ተግባራት", items: ["吃", "喝", "去", "买", "学习"] },
-];
-
-const quizzes = [
-  { title: "Daily Life Sprint", am: "ዕለታዊ ቃላት ፈተና", questions: 12, time: "4 min", focus: "Home, work, phone, bathroom" },
-  { title: "Shopping Survival", am: "የግብይት ተግባር", questions: 10, time: "3 min", focus: "Prices, bargaining, payment" },
-  { title: "Food Order Drill", am: "የምግብ ትዕዛዝ", questions: 9, time: "3 min", focus: "Menu, water, coffee, rice" },
-];
-
-const challenges = [
-  { day: "Day 1", title: "Greet 5 people", am: "5 ሰዎችን ሰላም በል", reward: "+80 XP" },
-  { day: "Day 2", title: "Order food in Chinese", am: "ምግብ በቻይንኛ አዝዝ", reward: "+120 XP" },
-  { day: "Day 3", title: "Ask directions politely", am: "አቅጣጫ በአክብሮት ጠይቅ", reward: "+150 XP" },
-  { day: "Day 4", title: "Complete a voice quiz", am: "የድምፅ ፈተና ጨርስ", reward: "+180 XP" },
-];
-
-const nav = [
-  ["home", "fa-house", "Home"],
-  ["discover", "fa-compass", "Explore"],
-  ["learn", "fa-bolt", "Learn"],
-  ["grammar", "fa-language", "Grammar"],
-  ["profile", "fa-user", "Profile"],
-];
-
-const menuItems = [
-  ["home", "fa-house", "Home", "Start live translation"],
-  ["discover", "fa-book-open", "Dictionary", "Search words and phrases"],
-  ["learn", "fa-graduation-cap", "Lessons", "Practice daily Chinese"],
-  ["learn", "fa-circle-question", "Quizzes", "Test your memory"],
-  ["learn", "fa-trophy", "Challenges", "Build your streak"],
-  ["grammar", "fa-language", "Grammar", "Learn sentence patterns"],
-  ["profile", "fa-user-gear", "Profile", "Progress and saved words"],
-  ["profile", "fa-sliders", "Settings", "Theme and preferences"],
-  ["profile", "fa-headset", "Help", "Support and feedback"],
-];
-
-function Icon({ name }) { return <i className={`fa-solid ${name}`} aria-hidden="true" />; }
-
-export default function Home() {
-  const [screen, setScreen] = useState("home");
-  const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [selectedWord, setSelectedWord] = useState(null);
-  const [selectedGrammar, setSelectedGrammar] = useState(null);
-  const [saved, setSaved] = useState(["你好", "谢谢"]);
-  const [notice, setNotice] = useState("");
-  const [theme, setTheme] = useState("light");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authMode, setAuthMode] = useState("signin");
-
-  useEffect(() => {
-    if (!notice) return;
-    const timer = setTimeout(() => setNotice(""), 2200);
-    return () => clearTimeout(timer);
-  }, [notice]);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
-
-  const filteredWords = useMemo(() => words.filter((word) => {
-    const matchesCategory = activeCategory === "all" || word.category === activeCategory;
-    const text = `${word.zh} ${word.py} ${word.en} ${word.am}`.toLowerCase();
-    return matchesCategory && text.includes(query.toLowerCase());
-  }), [activeCategory, query]);
-
-  const speak = (text, lang = "zh-CN") => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 0.82;
-    window.speechSynthesis.speak(utterance);
-    setNotice("Playing pronunciation");
+function Icon({ name, size = 20 }) {
+  const paths = {
+    home: <><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9 20v-6h6v6"/></>,
+    translate: <><path d="M4 5h10M9 3v2M6 9c1.4 3 3.7 5.3 7 7"/><path d="M13 9c-1.1 3.1-3.3 5.6-6.5 7.4M14 20l3.5-8 3.5 8M15.5 17h4"/></>,
+    learn: <><path d="M3 5.5 12 2l9 3.5-9 3.5-9-3.5Z"/><path d="M6 8v6.5c3.4 2.1 8.6 2.1 12 0V8M21 6v8"/></>,
+    bookmark: <path d="M6 3h12v18l-6-4-6 4V3Z"/>,
+    user: <><circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 3.5-6.5 8-6.5s7.2 2.3 8 6.5"/></>,
+    search: <><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,
+    mic: <><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></>,
+    sound: <><path d="M4 10h4l5-4v12l-5-4H4v-4Z"/><path d="M17 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></>,
+    arrow: <><path d="M5 12h14M14 7l5 5-5 5"/></>,
+    logout: <><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></>,
+    check: <path d="m5 12 4 4L19 6"/>,
+    spark: <path d="M12 2c.8 5.3 4.7 9.2 10 10-5.3.8-9.2 4.7-10 10-.8-5.3-4.7-9.2-10-10 5.3-.8 9.2-4.7 10-10Z"/>,
   };
+  return <svg className="lb-icon" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">{paths[name] || paths.spark}</svg>;
+}
 
-  const toggleSaved = (zh) => {
-    setSaved((current) => current.includes(zh) ? current.filter((item) => item !== zh) : [...current, zh]);
-  };
+function GoogleIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true" className="lb-social-icon"><path fill="#4285F4" d="M21.6 12.23c0-.72-.06-1.42-.19-2.09H12v3.96h5.38a4.6 4.6 0 0 1-2 3.02v2.57h3.24c1.9-1.75 2.98-4.33 2.98-7.46Z"/><path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.62-2.43l-3.24-2.57c-.9.6-2.05.96-3.38.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.65A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.39 13.83A6 6 0 0 1 6.08 12c0-.64.11-1.26.31-1.83V7.52H3.04A10 10 0 0 0 2 12c0 1.61.38 3.13 1.04 4.48l3.35-2.65Z"/><path fill="#EA4335" d="M12 6.04c1.47 0 2.79.51 3.83 1.5l2.87-2.88A9.64 9.64 0 0 0 12 2a10 10 0 0 0-8.96 5.52l3.35 2.65C7.18 7.8 9.39 6.04 12 6.04Z"/></svg>;
+}
 
-  const go = (next) => {
-    setScreen(next);
-    setSelectedWord(null);
-    setSelectedGrammar(null);
-    setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleAuth = () => {
-    setIsAuthenticated(true);
-    setNotice(authMode === "signup" ? "Account created" : "Signed in");
-  };
-
-  const signOut = () => {
-    setIsAuthenticated(false);
-    setMenuOpen(false);
-    setNotice("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  if (!isAuthenticated) {
-    return <main className={`app auth-app theme-${theme}`}>
-      <header className="auth-header">
-        <Brand />
-        <ThemeSwitch theme={theme} setTheme={setTheme} />
-      </header>
-      <AuthScreen mode={authMode} setMode={setAuthMode} submit={handleAuth} />
-    </main>;
-  }
-
-  return (
-    <main className={`app theme-${theme}`}>
-      <aside className="desktop-sidebar">
-        <Brand />
-        <ThemeSwitch theme={theme} setTheme={setTheme} />
-        <nav className="desktop-nav" aria-label="Main navigation">
-          {nav.map(([id, icon, label]) => (
-            <button key={id} className={screen === id ? "active" : ""} onClick={() => go(id)}>
-              <Icon name={icon} /><span>{label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-card">
-          <div className="sidebar-orbit"><Icon name="fa-wand-magic-sparkles" /></div>
-          <strong>Daily goal</strong><span>8 of 10 minutes</span>
-          <div className="tiny-progress"><i style={{ width: "80%" }} /></div>
-        </div>
-        <button className="profile-mini" onClick={() => go("profile")}><span>MA</span><div><b>Mahir</b><small>Level 4 · Explorer</small></div><Icon name="fa-chevron-right" /></button>
-      </aside>
-
-      <section className="app-content">
-        <header className="mobile-header">
-          <button className="hamburger-button" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><span /><span /><span /></button>
-          <Brand compact />
-          <div className="header-actions">
-            <ThemeSwitch theme={theme} setTheme={setTheme} compact />
-            <button className="icon-button" aria-label="Search" onClick={() => go("discover")}><Icon name="fa-magnifying-glass" /></button>
-            <button className="avatar-button" aria-label="Profile" onClick={() => go("profile")}>MA</button>
-          </div>
-        </header>
-
-        <div className="screen-wrap" key={screen}>
-          {screen === "home" && <HomeScreen go={go} speak={speak} setSelectedWord={setSelectedWord} />}
-          {screen === "discover" && <DiscoverScreen query={query} setQuery={setQuery} activeCategory={activeCategory} setActiveCategory={setActiveCategory} filteredWords={filteredWords} saved={saved} toggleSaved={toggleSaved} speak={speak} setSelectedWord={setSelectedWord} />}
-          {screen === "learn" && <LearnScreen speak={speak} setSelectedWord={setSelectedWord} />}
-          {screen === "grammar" && <GrammarScreen setSelectedGrammar={setSelectedGrammar} />}
-          {screen === "profile" && <ProfileScreen saved={saved.length} signOut={signOut} />}
-        </div>
-      </section>
-
-      <nav className="bottom-nav" aria-label="Mobile navigation">
-        {nav.map(([id, icon, label]) => (
-          <button key={id} className={screen === id ? "active" : ""} onClick={() => go(id)}>
-            <span className="nav-icon"><Icon name={icon} /></span><small>{label}</small>
-          </button>
-        ))}
-      </nav>
-
-      {selectedWord && <WordSheet word={selectedWord} saved={saved.includes(selectedWord.zh)} close={() => setSelectedWord(null)} speak={speak} toggleSaved={toggleSaved} />}
-      {selectedGrammar && <GrammarSheet item={selectedGrammar} close={() => setSelectedGrammar(null)} speak={speak} />}
-      <MenuDrawer open={menuOpen} close={() => setMenuOpen(false)} go={go} screen={screen} theme={theme} setTheme={setTheme} />
-      <div className={`toast ${notice ? "show" : ""}`} role="status"><Icon name="fa-volume-high" /> {notice}</div>
-    </main>
-  );
+function AppleIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true" className="lb-social-icon"><path fill="currentColor" d="M17.05 12.54c-.02-2.27 1.85-3.37 1.94-3.43a4.16 4.16 0 0 0-3.27-1.77c-1.38-.15-2.72.83-3.42.83-.72 0-1.8-.81-2.97-.78a4.34 4.34 0 0 0-3.65 2.23c-1.58 2.73-.4 6.75 1.11 8.96.76 1.08 1.65 2.29 2.82 2.25 1.14-.05 1.57-.72 2.94-.72 1.36 0 1.76.72 2.95.69 1.23-.02 2-1.08 2.73-2.17a8.94 8.94 0 0 0 1.25-2.55 3.91 3.91 0 0 1-2.43-3.54ZM14.82 5.88a3.98 3.98 0 0 0 .91-2.86 4.07 4.07 0 0 0-2.64 1.36 3.8 3.8 0 0 0-.94 2.75 3.36 3.36 0 0 0 2.67-1.25Z"/></svg>;
 }
 
 function Brand({ compact = false }) {
-  return <div className={`brand ${compact ? "compact" : ""}`}><span className="brand-mark">译</span><div><b>Lingo<span>Bridge</span></b>{!compact && <small>Mandarin, made natural.</small>}</div></div>;
+  return <div className={`lb-brand ${compact ? "compact" : ""}`}><span className="lb-brand-mark">译</span><div><strong>Lingo<span>Bridge</span></strong>{!compact && <small>Chinese, made natural.</small>}</div></div>;
 }
 
-function ThemeSwitch({ theme, setTheme, compact = false }) {
-  const isLight = theme === "light";
-  return <button className={`theme-switch ${isLight ? "light" : ""} ${compact ? "compact" : ""}`} onClick={() => setTheme(isLight ? "dark" : "light")} aria-label={`Switch to ${isLight ? "dark" : "light"} mode`}>
-    <span><Icon name={isLight ? "fa-sun" : "fa-moon"} /></span>
-    {!compact && <b>{isLight ? "Light" : "Dark"} mode</b>}
-  </button>;
+function normalizePhone(country, value) {
+  let digits = value.replace(/\D/g, "");
+  if (country.iso === "ET") {
+    if (digits.startsWith("0")) digits = digits.slice(1);
+    if (!/^9\d{8}$/.test(digits)) throw new Error("Enter an Ethiopian mobile number as 9XXXXXXXX or 09XXXXXXXX.");
+  } else if (!/^\d{6,14}$/.test(digits)) {
+    throw new Error("Enter a valid mobile number without spaces.");
+  }
+  return `${country.dial}${digits}`;
 }
 
-function MenuDrawer({ open, close, go, screen, theme, setTheme }) {
-  return <div className={`menu-backdrop ${open ? "open" : ""}`} onMouseDown={(event) => event.target === event.currentTarget && close()}>
-    <aside className="menu-drawer" aria-hidden={!open}>
-      <div className="menu-head">
-        <Brand />
-        <button className="menu-close" onClick={close} aria-label="Close menu"><Icon name="fa-xmark" /></button>
-      </div>
-      <div className="menu-profile">
-        <div className="menu-avatar">MA</div>
-        <div><b>Mahir</b><span>Mandarin Explorer · Level 4</span></div>
-      </div>
-      <ThemeSwitch theme={theme} setTheme={setTheme} />
-      <nav className="menu-list" aria-label="Menu">
-        {menuItems.map(([target, icon, label, desc], index) => (
-          <button key={`${label}-${index}`} className={screen === target ? "active" : ""} onClick={() => go(target)}>
-            <span><Icon name={icon} /></span>
-            <div><b>{label}</b><small>{desc}</small></div>
-            <Icon name="fa-chevron-right" />
-          </button>
-        ))}
-      </nav>
-      <div className="menu-footer"><Icon name="fa-shield-heart" /> Offline ready · AI assisted · EN / 中文 / አማርኛ</div>
-    </aside>
-  </div>;
+function LoadingScreen() {
+  return <main className="lb-loading"><div className="lb-loader-mark">译</div><p>Securing your learning workspace…</p></main>;
 }
 
-function AuthScreen({ mode, setMode, submit }) {
+function AuthPortal({ onSession }) {
+  const [mode, setMode] = useState("signin");
+  const [stage, setStage] = useState("credentials");
+  const [countryIso, setCountryIso] = useState("ET");
+  const [phone, setPhone] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [pendingPhone, setPendingPhone] = useState("");
+
+  const country = countries.find((item) => item.iso === countryIso) || countries[0];
+  const configured = isSupabaseConfigured();
+
+  const submitCredentials = async (event) => {
+    event.preventDefault();
+    setError("");
+    const client = getSupabase();
+    if (!client) {
+      setError("Supabase is not configured. Add the public Supabase URL and publishable key in Vercel.");
+      return;
+    }
+
+    try {
+      const normalizedPhone = normalizePhone(country, phone);
+      if (mode === "signup" && password.length < 10) throw new Error("Use a password with at least 10 characters.");
+      if (mode === "signup" && password !== confirmPassword) throw new Error("Passwords must match.");
+      if (mode === "signin" && password.length < 8) throw new Error("Enter your password.");
+
+      setBusy(true);
+      if (mode === "signin") {
+        const { data, error: authError } = await client.auth.signInWithPassword({ phone: normalizedPhone, password });
+        if (authError) throw authError;
+        if (data.session) onSession(data.session);
+      } else {
+        if (!fullName.trim()) throw new Error("Enter your full name.");
+        const { data, error: authError } = await client.auth.signUp({
+          phone: normalizedPhone,
+          password,
+          options: { channel: "sms", data: { full_name: fullName.trim() } },
+        });
+        if (authError) throw authError;
+        if (data.session) onSession(data.session);
+        else {
+          setPendingPhone(normalizedPhone);
+          setStage("otp");
+        }
+      }
+    } catch (authError) {
+      setError(authError?.message || "Authentication could not be completed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const verifyOtp = async (event) => {
+    event.preventDefault();
+    setError("");
+    const client = getSupabase();
+    if (!client) return setError("Supabase is not configured.");
+    if (!/^\d{6}$/.test(otp)) return setError("Enter the six-digit verification code.");
+
+    setBusy(true);
+    const { data, error: otpError } = await client.auth.verifyOtp({ phone: pendingPhone, token: otp, type: "sms" });
+    setBusy(false);
+    if (otpError) return setError(otpError.message);
+    if (data.session) onSession(data.session);
+  };
+
+  const socialAuth = async (provider) => {
+    setError("");
+    const client = getSupabase();
+    if (!client) return setError("Supabase is not configured.");
+    setBusy(true);
+    const { error: socialError } = await client.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin },
+    });
+    if (socialError) {
+      setError(socialError.message);
+      setBusy(false);
+    }
+  };
+
+  if (stage === "otp") {
+    return <main className="lb-auth-page">
+      <div className="lb-auth-orb one"/><div className="lb-auth-orb two"/>
+      <section className="lb-auth-shell otp-shell">
+        <aside className="lb-auth-story">
+          <Brand/>
+          <div className="lb-story-copy"><span className="lb-badge"><i/> Phone verification</span><h1>One secure step before your learning begins.</h1><p>We sent a six-digit code to <strong>{pendingPhone}</strong>. Enter it to activate your protected learning profile.</p></div>
+          <div className="lb-story-footer">ENGLISH · 中文 · አማርኛ</div>
+        </aside>
+        <section className="lb-auth-card">
+          <button className="lb-back-button" onClick={() => { setStage("credentials"); setOtp(""); setError(""); }}>← Change number</button>
+          <span className="lb-kicker">VERIFY PHONE</span>
+          <h2>Enter your code</h2>
+          <p className="lb-auth-intro">The code expires shortly. Never share it with anyone.</p>
+          {error && <div className="lb-auth-error">{error}</div>}
+          <form onSubmit={verifyOtp} className="lb-auth-form">
+            <label><span>Verification code</span><input className="lb-otp-input" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder="000000" required/></label>
+            <button className="lb-primary-button" disabled={busy}>{busy ? "Verifying…" : "Verify and continue"}<Icon name="arrow"/></button>
+          </form>
+        </section>
+      </section>
+    </main>;
+  }
+
   const isSignup = mode === "signup";
-  return <section className="auth-screen">
-    <div className="auth-visual" aria-hidden="true">
-      <div className="auth-orbit one" /><div className="auth-orbit two" /><div className="auth-phone">
-        <span>译</span><b>你好</b><em lang="am">ሰላም</em><small>AI translation locked</small>
+  return <main className="lb-auth-page">
+    <div className="lb-auth-orb one"/><div className="lb-auth-orb two"/>
+    <section className="lb-auth-shell">
+      <aside className="lb-auth-story">
+        <Brand/>
+        <div className="lb-story-copy">
+          <span className="lb-badge"><i/> Built for confident global communication</span>
+          <h1>Speak beyond borders. Learn without limits.</h1>
+          <p>A premium AI-ready language workspace for Chinese, English and Amharic—designed around real conversations.</p>
+          <div className="lb-story-features"><div><span>01</span><strong>Live voice practice</strong><small>Listen, repeat and improve</small></div><div><span>02</span><strong>Daily progress</strong><small>Build lasting learning habits</small></div></div>
+        </div>
+        <div className="lb-story-footer">PRIVATE · SECURE · MULTILINGUAL</div>
+      </aside>
+
+      <section className="lb-auth-card">
+        <div className="lb-mobile-brand"><Brand compact/></div>
+        <span className="lb-kicker">SECURE ACCESS</span>
+        <h2>{isSignup ? "Create your learning account" : "Welcome back"}</h2>
+        <p className="lb-auth-intro">{isSignup ? "Start your personalized language journey in less than a minute." : "Sign in with your registered mobile number to continue."}</p>
+
+        <div className="lb-auth-tabs"><button className={!isSignup ? "active" : ""} onClick={() => { setMode("signin"); setError(""); }}>Sign in</button><button className={isSignup ? "active" : ""} onClick={() => { setMode("signup"); setError(""); }}>Sign up</button></div>
+
+        <div className="lb-social-grid">
+          <button type="button" onClick={() => socialAuth("google")} disabled={busy || !configured}><GoogleIcon/><span>Continue with Google</span></button>
+          <button type="button" className="apple" onClick={() => socialAuth("apple")} disabled={busy || !configured}><AppleIcon/><span>Continue with Apple</span></button>
+        </div>
+        <div className="lb-divider"><span>or continue with phone</span></div>
+
+        {error && <div className="lb-auth-error">{error}</div>}
+        {!configured && <div className="lb-auth-warning">Authentication variables are missing in Vercel. The learning app remains locked.</div>}
+
+        <form onSubmit={submitCredentials} className="lb-auth-form">
+          {isSignup && <label><span>Full name</span><div className="lb-field"><input value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" placeholder="Your full name" required/></div></label>}
+
+          <div className="lb-phone-grid">
+            <label><span>Country code</span><div className="lb-field lb-country-field"><b>{country.flag}</b><select value={countryIso} onChange={(event) => { setCountryIso(event.target.value); setPhone(""); }} aria-label="Country calling code">{countries.map((item) => <option key={item.iso} value={item.iso}>{item.flag} {item.name} ({item.dial})</option>)}</select></div></label>
+            <label><span>Mobile number</span><div className="lb-field lb-phone-field"><b>{country.dial}</b><input value={phone} onChange={(event) => setPhone(event.target.value.replace(/\D/g, "").slice(0, country.iso === "ET" ? 10 : 14))} inputMode="numeric" autoComplete="tel-national" placeholder={country.placeholder} required/></div></label>
+          </div>
+          <small className="lb-phone-help">{country.iso === "ET" ? "Ethiopia: enter 9XXXXXXXX or the local form 09XXXXXXXX." : "Enter the national mobile number without the international + sign."}</small>
+
+          <label><span>Password</span><div className="lb-field"><input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={isSignup ? 10 : 8} autoComplete={isSignup ? "new-password" : "current-password"} placeholder={isSignup ? "At least 10 characters" : "Your password"} required/><button type="button" className="lb-password-toggle" onClick={() => setShowPassword((current) => !current)}>{showPassword ? "Hide" : "Show"}</button></div></label>
+          {isSignup && <label><span>Confirm password</span><div className={`lb-field ${confirmPassword && confirmPassword === password ? "valid" : ""}`}><input type={showPassword ? "text" : "password"} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength="10" autoComplete="new-password" placeholder="Repeat your password" required/>{confirmPassword && confirmPassword === password && <i className="lb-valid"><Icon name="check" size={14}/></i>}</div></label>}
+
+          <button className="lb-primary-button" disabled={busy || !configured}>{busy ? "Please wait…" : isSignup ? "Create secure account" : "Sign in"}<Icon name="arrow"/></button>
+        </form>
+        <p className="lb-legal">By continuing, you agree to protect your account and use LingoBridge responsibly.</p>
+      </section>
+    </section>
+  </main>;
+}
+
+function PhraseCard({ item, saved, onSave, onSpeak }) {
+  return <article className="lb-phrase-card"><button className="lb-sound-button" onClick={() => onSpeak(item.zh)} aria-label={`Play ${item.zh}`}><Icon name="sound"/></button><div className="lb-phrase-main"><strong>{item.zh}</strong><span>{item.py}</span></div><div className="lb-phrase-meaning"><b>{item.en}</b><small>{item.am}</small></div><button className={`lb-save-button ${saved ? "saved" : ""}`} onClick={() => onSave(item.zh)} aria-label="Save phrase"><Icon name="bookmark"/></button></article>;
+}
+
+function HomeView({ go, speak, saved, toggleSaved, displayName }) {
+  return <>
+    <section className="lb-hero-panel">
+      <div className="lb-hero-copy"><span className="lb-kicker">YOUR DAILY LANGUAGE OS</span><h2>Good to see you, {displayName}.</h2><p>Turn everyday moments into confident Chinese conversations.</p><div className="lb-hero-actions"><button onClick={() => go("learn")}>Continue lesson <Icon name="arrow"/></button><button className="secondary" onClick={() => go("translate")}><Icon name="mic"/> Voice practice</button></div></div>
+      <div className="lb-hero-orbit"><div><span>译</span><i/></div><small>AI PRACTICE CORE</small></div>
+    </section>
+
+    <section className="lb-command-grid">
+      <button onClick={() => go("translate")}><span className="cyan"><Icon name="translate"/></span><div><strong>Instant translation</strong><small>Chinese · English · Amharic</small></div><Icon name="arrow"/></button>
+      <button onClick={() => go("learn")}><span className="violet"><Icon name="learn"/></span><div><strong>Guided learning</strong><small>Personalized daily lessons</small></div><Icon name="arrow"/></button>
+      <button onClick={() => go("saved")}><span className="amber"><Icon name="bookmark"/></span><div><strong>Saved phrases</strong><small>{saved.length} ready to review</small></div><Icon name="arrow"/></button>
+    </section>
+
+    <div className="lb-section-title"><div><span>CURRICULUM</span><h3>Continue your path</h3></div><button onClick={() => go("learn")}>View all <Icon name="arrow" size={16}/></button></div>
+    <section className="lb-lesson-grid">{lessons.map((lesson) => <button key={lesson.title} onClick={() => go("learn")}><span className={`lb-lesson-icon ${lesson.tone}`}>{lesson.icon}</span><div><strong>{lesson.title}</strong><small>{lesson.subtitle}</small><i><b style={{ width: `${lesson.progress}%` }}/></i><em>{lesson.progress}% complete</em></div></button>)}</section>
+
+    <div className="lb-section-title"><div><span>SMART REVIEW</span><h3>Practice these today</h3></div></div>
+    <section className="lb-phrase-list">{phrases.slice(0, 4).map((item) => <PhraseCard key={item.zh} item={item} saved={saved.includes(item.zh)} onSave={toggleSaved} onSpeak={speak}/>)}</section>
+  </>;
+}
+
+function TranslateView({ speak, saved, toggleSaved }) {
+  const [query, setQuery] = useState("");
+  const matches = useMemo(() => phrases.filter((item) => `${item.zh} ${item.py} ${item.en} ${item.am}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  return <>
+    <section className="lb-page-heading"><span className="lb-kicker">TRANSLATE & DISCOVER</span><h2>Find the words you need.</h2><p>Search Chinese characters, pinyin, English or Amharic.</p></section>
+    <div className="lb-search"><Icon name="search"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search 你好, nǐ hǎo, hello, or ሰላም"/><button onClick={() => setQuery("")}>Clear</button></div>
+    <section className="lb-voice-studio"><div><span className="lb-kicker">VOICE STUDIO</span><h3>Practice naturally</h3><p>Tap any phrase below to hear clear Mandarin pronunciation.</p></div><button onClick={() => speak("你好，很高兴认识你")}><span><Icon name="mic"/></span><strong>Start sample</strong><small>你好，很高兴认识你</small></button></section>
+    <div className="lb-result-meta"><strong>{query ? "Search results" : "Essential phrases"}</strong><span>{matches.length} phrases</span></div>
+    <section className="lb-phrase-list">{matches.map((item) => <PhraseCard key={item.zh} item={item} saved={saved.includes(item.zh)} onSave={toggleSaved} onSpeak={speak}/>)}</section>
+  </>;
+}
+
+function LearnView({ speak }) {
+  const [active, setActive] = useState(0);
+  const lesson = lessons[active];
+  const phrase = phrases[active % phrases.length];
+  return <>
+    <section className="lb-page-heading"><span className="lb-kicker">PERSONALIZED LEARNING</span><h2>Build confidence one lesson at a time.</h2><p>Short sessions designed for real-life communication.</p></section>
+    <section className="lb-learning-layout">
+      <div className="lb-course-list">{lessons.map((item, index) => <button key={item.title} className={active === index ? "active" : ""} onClick={() => setActive(index)}><span className={`lb-lesson-icon ${item.tone}`}>{item.icon}</span><div><strong>{item.title}</strong><small>{item.subtitle}</small></div><em>{item.progress}%</em></button>)}</div>
+      <article className="lb-practice-panel"><div className="lb-practice-top"><span>{lesson.title}</span><b>Lesson {active + 1} of {lessons.length}</b></div><div className="lb-character">{phrase.zh}</div><div className="lb-pinyin">{phrase.py}</div><button className="lb-play-phrase" onClick={() => speak(phrase.zh)}><Icon name="sound"/> Listen and repeat</button><div className="lb-meaning-grid"><div><small>ENGLISH</small><strong>{phrase.en}</strong></div><div><small>አማርኛ</small><strong>{phrase.am}</strong></div></div><button className="lb-primary-button">Mark as practiced <Icon name="check"/></button></article>
+    </section>
+  </>;
+}
+
+function SavedView({ saved, toggleSaved, speak }) {
+  const items = phrases.filter((item) => saved.includes(item.zh));
+  return <><section className="lb-page-heading"><span className="lb-kicker">YOUR COLLECTION</span><h2>Saved phrases</h2><p>Review the words you want ready for real conversations.</p></section>{items.length ? <section className="lb-phrase-list">{items.map((item) => <PhraseCard key={item.zh} item={item} saved onSave={toggleSaved} onSpeak={speak}/>)}</section> : <section className="lb-empty"><span>译</span><h3>No saved phrases yet</h3><p>Bookmark phrases from Translate to build your personal collection.</p></section>}</>;
+}
+
+function ProfileView({ user, onSignOut }) {
+  const name = user?.user_metadata?.full_name || "Language Explorer";
+  return <><section className="lb-page-heading"><span className="lb-kicker">ACCOUNT & PROGRESS</span><h2>Your learning profile</h2><p>Manage your secure account and see your momentum.</p></section><section className="lb-profile-grid"><article className="lb-profile-card"><div className="lb-profile-avatar">{name.slice(0, 2).toUpperCase()}</div><h3>{name}</h3><p>{user?.phone || user?.email || "Verified learner"}</p><span><i/> Verified account</span><button onClick={onSignOut}><Icon name="logout"/> Sign out securely</button></article><article className="lb-progress-card"><span className="lb-kicker">THIS WEEK</span><h3>Strong momentum</h3><div className="lb-progress-stats"><div><strong>5</strong><small>day streak</small></div><div><strong>42</strong><small>phrases</small></div><div><strong>86%</strong><small>accuracy</small></div></div><div className="lb-week-bars">{[55,78,43,92,70,35,18].map((height, index) => <i key={index} style={{ height: `${height}%` }}><b>{["M","T","W","T","F","S","S"][index]}</b></i>)}</div></article></section></>;
+}
+
+function LearningApp({ session }) {
+  const [active, setActive] = useState("home");
+  const [saved, setSaved] = useState(["你好", "谢谢"]);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const user = session.user;
+  const displayName = (user?.user_metadata?.full_name || "Explorer").split(" ")[0];
+  const nav = [
+    ["home", "home", "Overview"],
+    ["translate", "translate", "Translate"],
+    ["learn", "learn", "Learn"],
+    ["saved", "bookmark", "Saved"],
+    ["profile", "user", "Profile"],
+  ];
+
+  const go = (target) => {
+    setActive(target);
+    setMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const toggleSaved = (value) => setSaved((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
+
+  const speak = (text) => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "zh-CN";
+    utterance.rate = 0.82;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const signOut = async () => {
+    const client = getSupabase();
+    if (client) await client.auth.signOut();
+  };
+
+  return <main className="lb-app-shell">
+    <aside className={`lb-sidebar ${menuOpen ? "open" : ""}`}>
+      <div className="lb-sidebar-head"><Brand/><button onClick={() => setMenuOpen(false)} aria-label="Close menu">×</button></div>
+      <nav>{nav.map(([id, icon, label]) => <button key={id} className={active === id ? "active" : ""} onClick={() => go(id)}><Icon name={icon}/><span>{label}</span>{active === id && <i/>}</button>)}</nav>
+      <section className="lb-daily-card"><span><Icon name="spark"/></span><strong>Daily goal</strong><small>8 of 10 minutes</small><i><b style={{ width: "80%" }}/></i></section>
+      <button className="lb-sidebar-profile" onClick={() => go("profile")}><span>{displayName.slice(0, 2).toUpperCase()}</span><div><strong>{displayName}</strong><small>Mandarin Explorer</small></div><Icon name="arrow"/></button>
+    </aside>
+    {menuOpen && <button className="lb-menu-backdrop" onClick={() => setMenuOpen(false)} aria-label="Close navigation"/>}
+
+    <section className="lb-workspace">
+      <header className="lb-topbar">
+        <button className="lb-menu-button" onClick={() => setMenuOpen(true)} aria-label="Open menu"><span/><span/><span/></button>
+        <div className="lb-topbar-copy"><span className="lb-kicker">LINGOBRIDGE INTELLIGENCE</span><h1>{active === "home" ? `Welcome, ${displayName}` : nav.find(([id]) => id === active)?.[2]}</h1></div>
+        <div className="lb-topbar-actions"><span className="lb-live-status"><i/> Secure session</span><button className="lb-search-button" onClick={() => go("translate")}><Icon name="search"/></button><button className="lb-avatar-button" onClick={() => go("profile")}>{displayName.slice(0, 2).toUpperCase()}</button></div>
+      </header>
+
+      <div className="lb-content">
+        {active === "home" && <HomeView go={go} speak={speak} saved={saved} toggleSaved={toggleSaved} displayName={displayName}/>} 
+        {active === "translate" && <TranslateView speak={speak} saved={saved} toggleSaved={toggleSaved}/>} 
+        {active === "learn" && <LearnView speak={speak}/>} 
+        {active === "saved" && <SavedView saved={saved} toggleSaved={toggleSaved} speak={speak}/>} 
+        {active === "profile" && <ProfileView user={user} onSignOut={signOut}/>} 
       </div>
-    </div>
-    <form className="auth-card" onSubmit={(event) => { event.preventDefault(); submit(); }}>
-      <span className="eyebrow">SECURE ACCESS</span>
-      <h1>{isSignup ? "Create your LingoBridge account." : "Sign in to continue learning."}</h1>
-      <p>Access live translation, saved phrases, quizzes, grammar lessons, and your daily Chinese progress.</p>
-      <div className="auth-tabs" role="tablist" aria-label="Authentication mode">
-        <button type="button" className={!isSignup ? "active" : ""} onClick={() => setMode("signin")}>Sign in</button>
-        <button type="button" className={isSignup ? "active" : ""} onClick={() => setMode("signup")}>Sign up</button>
-      </div>
-      {isSignup && <label><span>Full name</span><input placeholder="Mahir Aman" autoComplete="name" /></label>}
-      <label><span>Email address</span><input type="email" placeholder="mahir@example.com" autoComplete="email" required /></label>
-      <label><span>Password</span><input type="password" placeholder="••••••••" autoComplete={isSignup ? "new-password" : "current-password"} required /></label>
-      {isSignup && <label><span>Learning language</span><select defaultValue="am-en"><option value="am-en">English + አማርኛ</option><option value="en">English only</option><option value="am">አማርኛ only</option></select></label>}
-      <button className="auth-submit" type="submit">{isSignup ? "Create account" : "Sign in"} <Icon name="fa-arrow-right" /></button>
-      <div className="auth-divider"><span>or continue with</span></div>
-      <div className="social-auth"><button type="button" onClick={submit}><Icon name="fa-g" /> Google</button><button type="button" onClick={submit}><Icon name="fa-mobile-screen" /> Phone</button></div>
-      <small className="auth-note">{isSignup ? "By creating an account, you agree to save your learning progress securely." : "New here? Create an account to save words and continue across devices."}</small>
-    </form>
-  </section>;
-}
-
-function HomeScreen({ go, speak }) {
-  const [listening, setListening] = useState(false);
-  const [camera, setCamera] = useState(true);
-  const pulseVoice = () => { setListening(true); speak("你好，很高兴认识你"); setTimeout(() => setListening(false), 2400); };
-  return <div className="cyber-home">
-    <div className="cyber-topline"><div><span className="system-dot" />LINGOBRIDGE PRO</div><div className="offline-pill"><Icon name="fa-cloud-arrow-down" /> Offline ready</div></div>
-    <section className={`ar-stage ${camera ? "camera-on" : ""}`}>
-      <div className="neural-grid" /><div className="particle p1" /><div className="particle p2" /><div className="particle p3" />
-      <div className="ar-toolbar"><button onClick={() => setCamera(!camera)}><Icon name={camera ? "fa-video" : "fa-video-slash"} /></button><span>LIVE AR TRANSLATION</span><button><Icon name="fa-bolt" /></button></div>
-      <div className="scan-line" />
-      <div className="street-scene"><div className="building b1" /><div className="building b2" /><div className="road" /><div className="street-sign">前门大街</div></div>
-      <div className="translation-bubble bubble-one"><small>DETECTED · 中文</small><b>前门大街</b><span>Qianmen Street</span><em lang="am">ቺያንሜን ጎዳና</em></div>
-      <div className="translation-bubble bubble-two"><small>LIVE · 98%</small><b>出口</b><span>Exit · <strong lang="am">መውጫ</strong></span></div>
-      <div className="focus-corners"><i /><i /><i /><i /></div>
-      <div className="copilot"><span className="copilot-core"><i /></span><div><small>NOVA · AI COPILOT</small><b>I found 2 translations</b></div></div>
-      <div className="gesture-hint"><i /><span>Swipe to scan</span></div>
     </section>
-    <section className={`voice-console ${listening ? "listening" : ""}`}>
-      <div className="language-orbit"><button className="orb en">EN</button><button className="orb zh">中</button><button className="orb am">አ</button><div className="orbit-line" /></div>
-      <div className="voice-title"><span>{listening ? "NEURAL LISTENING" : "VOICE TRANSLATOR"}</span><small>{listening ? "Speak naturally…" : "Tap the core and start speaking"}</small></div>
-      <button className="voice-core" onClick={pulseVoice} aria-label="Start voice translation"><span><Icon name={listening ? "fa-wave-square" : "fa-microphone"} /></span></button>
-      <div className="waveform" aria-hidden="true">{[16,28,44,25,54,34,63,30,48,22,39,18].map((height, i) => <i key={i} style={{ "--wave": `${height}px`, "--delay": `${i * .06}s` }} />)}</div>
-      <div className="voice-result"><span>你好，很高兴认识你</span><b>Hello, nice to meet you</b><em lang="am">ሰላም፣ ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል</em></div>
-    </section>
-    <div className="mode-heading"><div><span>NEURAL MODES</span><h2>Translate beyond words</h2></div><button onClick={() => go("discover")}>View all <Icon name="fa-arrow-right" /></button></div>
-    <div className="cyber-modes">
-      <button onClick={() => go("discover")}><span className="mode-icon cyan"><Icon name="fa-camera" /></span><div><b>AR Lens</b><small>Translate the world live</small></div><Icon name="fa-chevron-right" /></button>
-      <button onClick={() => go("learn")}><span className="mode-icon magenta"><Icon name="fa-user-group" /></span><div><b>Conversation</b><small>Real-time two-way mode</small></div><Icon name="fa-chevron-right" /></button>
-      <button onClick={() => go("grammar")}><span className="mode-icon blue"><Icon name="fa-brain" /></span><div><b>AI Grammar</b><small>Understand every pattern</small></div><Icon name="fa-chevron-right" /></button>
-    </div>
-    <section className="conversation-preview">
-      <div className="conversation-head"><span>LIVE CONVERSATION</span><div><i />SECURE</div></div>
-      <div className="speaker speaker-left"><div className="holo-avatar">M</div><span><b>How are you today?</b><small>English · Mahir</small></span></div>
-      <div className="conversation-wave"><i /><i /><i /><i /><i /><span><Icon name="fa-arrows-rotate" /></span><i /><i /><i /><i /><i /></div>
-      <div className="speaker speaker-right"><span><b>你今天好吗？</b><small>中文 · Nova voice</small></span><div className="holo-avatar chinese">林</div></div>
-    </section>
-  </div>;
+
+    <nav className="lb-bottom-nav">{nav.slice(0, 5).map(([id, icon, label]) => <button key={id} className={active === id ? "active" : ""} onClick={() => go(id)}><Icon name={icon}/><span>{label}</span></button>)}</nav>
+  </main>;
 }
 
-function DiscoverScreen({ query, setQuery, activeCategory, setActiveCategory, filteredWords, saved, toggleSaved, speak, setSelectedWord }) {
-  return <>
-    <PageTitle eyebrow="TRANSLATE & DISCOVER" title="Find the words you need." text="Chinese, Pinyin, English and Amharic—all in one place." />
-    <div className="search-box"><Icon name="fa-magnifying-glass" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search 你好, nǐ hǎo, hello, or ሰላም" /><button onClick={() => setQuery("")} className={query ? "visible" : ""}><Icon name="fa-xmark" /></button></div>
-    <div className="category-scroll">
-      <button className={activeCategory === "all" ? "active" : ""} onClick={() => setActiveCategory("all")}>All words</button>
-      {categories.map((category) => <button key={category.id} className={activeCategory === category.id ? "active" : ""} onClick={() => setActiveCategory(category.id)}>{category.name}</button>)}
-    </div>
-    {!query && activeCategory === "all" && <div className="category-cards">{categories.map((category) => <button key={category.id} className={`category-card ${category.color}`} onClick={() => setActiveCategory(category.id)}><span><Icon name={category.icon} /></span><b>{category.name}</b><small>{category.am}</small><div><i style={{ width: `${category.progress}%` }} /></div><em>{category.progress}%</em></button>)}</div>}
-    <div className="section-head inline result-head"><h2>{query ? "Search results" : activeCategory === "all" ? "Popular now" : categories.find((c) => c.id === activeCategory)?.name}</h2><span>{filteredWords.length} phrases</span></div>
-    <div className="word-list">{filteredWords.map((word) => <WordRow key={word.zh} word={word} isSaved={saved.includes(word.zh)} toggleSaved={toggleSaved} speak={speak} open={() => setSelectedWord(word)} />)}</div>
-    {!filteredWords.length && <div className="empty-state"><span>找</span><h3>No phrase found</h3><p>Try another spelling or browse a category.</p></div>}
-  </>;
-}
+export default function Page() {
+  const [ready, setReady] = useState(false);
+  const [session, setSession] = useState(null);
 
-function WordRow({ word, isSaved, toggleSaved, speak, open }) {
-  return <article className="word-row-new" onClick={open}><button className="word-audio" onClick={(e) => { e.stopPropagation(); speak(word.zh); }}><Icon name="fa-volume-high" /></button><div className="word-copy"><div><strong>{word.zh}</strong><span>{word.py}</span></div><p><span className="word-en">{word.en}</span><span className="word-am" lang="am">{word.am}</span></p></div><button className={`save-button ${isSaved ? "saved" : ""}`} onClick={(e) => { e.stopPropagation(); toggleSaved(word.zh); }} aria-label="Save word"><Icon name={isSaved ? "fa-bookmark" : "fa-regular fa-bookmark"} /></button></article>;
-}
+  useEffect(() => {
+    const client = getSupabase();
+    if (!client) {
+      setReady(true);
+      return undefined;
+    }
 
-function LearnScreen({ speak, setSelectedWord }) {
-  const [index, setIndex] = useState(0); const word = words[index];
-  return <>
-    <PageTitle eyebrow="PERSONAL LESSON" title="Speak with confidence." text="Daily words, core basics, quizzes, and challenges designed for real conversations." />
-    <div className="lesson-top"><button disabled={!index} onClick={() => setIndex(index - 1)}><Icon name="fa-arrow-left" /></button><div><span>LESSON {index + 1} OF {words.length}</span><i><b style={{ width: `${((index + 1) / words.length) * 100}%` }} /></i></div><button onClick={() => setSelectedWord(word)}><Icon name="fa-ellipsis" /></button></div>
-    <section className="practice-card">
-      <span className="practice-label">LISTEN & REPEAT</span><strong>{word.zh}</strong><em>{word.py}</em><button className="big-sound" onClick={() => speak(word.zh)}><span><Icon name="fa-volume-high" /></span>Play slowly</button>
-      <div className="meaning-grid"><div><small>ENGLISH</small><b>{word.en}</b></div><div><small lang="am">አማርኛ</small><b lang="am">{word.am}</b></div></div>
-    </section>
-    <div className="example-card"><span><Icon name="fa-message" /></span><div><small>IN A SENTENCE</small><b>{word.example}</b><em>{word.exampleEn}</em></div><button onClick={() => speak(word.example)}><Icon name="fa-volume-high" /></button></div>
-    <button className="record-action" onClick={() => speak(word.zh)}><span><Icon name="fa-microphone" /></span><div><b>Hold to practice</b><small>Tap to hear the model pronunciation</small></div></button>
-    <button className="primary-action" onClick={() => setIndex(index === words.length - 1 ? 0 : index + 1)}>Continue <Icon name="fa-arrow-right" /></button>
-    <section className="learning-section">
-      <div className="section-head inline"><h2>Basics bootcamp</h2><span>{basics.reduce((total, group) => total + group.items.length, 0)} items</span></div>
-      <div className="basic-grid">{basics.map((group) => <article key={group.title} className="basic-card"><div><b>{group.title}</b><em lang="am">{group.am}</em></div><p>{group.items.map((item) => <span key={item}>{item}</span>)}</p></article>)}</div>
-    </section>
-    <section className="learning-section">
-      <div className="section-head inline"><h2>Quick quizzes</h2><span>{quizzes.length} sets</span></div>
-      <div className="quiz-grid">{quizzes.map((quiz, quizIndex) => <button key={quiz.title} className="quiz-card" onClick={() => speak(words[(index + quizIndex) % words.length].zh)}><span><Icon name="fa-circle-question" /></span><div><small>{quiz.questions} QUESTIONS · {quiz.time}</small><b>{quiz.title}</b><em lang="am">{quiz.am}</em><p>{quiz.focus}</p></div><i><Icon name="fa-play" /></i></button>)}</div>
-    </section>
-    <section className="learning-section">
-      <div className="section-head inline"><h2>Daily challenges</h2><span>4-day streak path</span></div>
-      <div className="challenge-list">{challenges.map((challenge, challengeIndex) => <article key={challenge.day} className={challengeIndex === 0 ? "active" : ""}><span>{challenge.day}</span><div><b>{challenge.title}</b><em lang="am">{challenge.am}</em></div><strong>{challenge.reward}</strong></article>)}</div>
-    </section>
-  </>;
-}
+    let mounted = true;
+    client.auth.getSession().then(({ data }) => {
+      if (mounted) {
+        setSession(data.session || null);
+        setReady(true);
+      }
+    });
 
-function GrammarScreen({ setSelectedGrammar }) {
-  return <>
-    <PageTitle eyebrow="GRAMMAR STUDIO" title="Understand the pattern." text="Clear explanations with English and Amharic support." />
-    <section className="grammar-hero-new"><span>语</span><div><small>RECOMMENDED FOR YOU</small><h2>Chinese word order</h2><p>Subject + Time + Place + Verb + Object</p><button onClick={() => setSelectedGrammar(grammar[0])}>Start lesson <Icon name="fa-arrow-right" /></button></div></section>
-    <div className="section-head inline"><h2>Core foundations</h2><span>{grammar.length} lessons</span></div>
-    <div className="grammar-grid-new">{grammar.map((item, index) => <button key={item.mark} onClick={() => setSelectedGrammar(item)}><span className={item.color}>{item.mark}</span><div><small>{item.level.toUpperCase()} · {item.minutes} MIN</small><b>{item.title}</b><em lang="am">{item.am}</em><p>{item.desc}</p></div><i><Icon name="fa-chevron-right" /></i></button>)}</div>
-  </>;
-}
+    const { data: listener } = client.auth.onAuthStateChange((_event, nextSession) => {
+      if (mounted) {
+        setSession(nextSession || null);
+        setReady(true);
+      }
+    });
 
-function ProfileScreen({ saved, signOut }) {
-  return <>
-    <PageTitle eyebrow="YOUR PROGRESS" title="You are building momentum." text="Every phrase learned brings you closer to a real conversation." />
-    <div className="profile-hero"><div className="profile-avatar">MA<span>4</span></div><h2>Mahir Aman</h2><p>Mandarin Explorer · Addis Ababa</p><div className="profile-stats"><div><b>12</b><small>Day streak</small></div><div><b>{words.length}</b><small>Words ready</small></div><div><b>{saved}</b><small>Saved phrases</small></div></div></div>
-    <div className="weekly-card"><div><span><Icon name="fa-chart-line" /></span><div><b>Weekly activity</b><small>42 minutes this week</small></div><em>+18%</em></div><div className="week-bars">{[38,72,52,88,64,28,10].map((height, i) => <span key={i}><i style={{ height: `${height}%` }} /><small>{["M","T","W","T","F","S","S"][i]}</small></span>)}</div></div>
-    <div className="settings-list"><button><span><Icon name="fa-sliders" /></span><div><b>Learning preferences</b><small>Goals, reminders and level</small></div><Icon name="fa-chevron-right" /></button><button><span><Icon name="fa-language" /></span><div><b>Translation language</b><small>English + አማርኛ</small></div><Icon name="fa-chevron-right" /></button><button><span><Icon name="fa-circle-question" /></span><div><b>Help & feedback</b><small>We would love to hear from you</small></div><Icon name="fa-chevron-right" /></button><button onClick={signOut}><span><Icon name="fa-right-from-bracket" /></span><div><b>Sign out</b><small>Return to secure access screen</small></div><Icon name="fa-chevron-right" /></button></div>
-  </>;
-}
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
-function PageTitle({ eyebrow, title, text }) { return <div className="page-title"><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{text}</p></div>; }
-
-function WordSheet({ word, saved, close, speak, toggleSaved }) {
-  return <div className="sheet-backdrop" onMouseDown={(e) => e.target === e.currentTarget && close()}><section className="detail-sheet"><div className="sheet-handle" /><button className="sheet-close" onClick={close}><Icon name="fa-xmark" /></button><div className="sheet-word"><button onClick={() => speak(word.zh)}><Icon name="fa-volume-high" /></button><strong>{word.zh}</strong><span>{word.py}</span></div><div className="sheet-translations"><div><small>ENGLISH</small><b>{word.en}</b></div><div><small lang="am">አማርኛ</small><b lang="am">{word.am}</b></div></div><div className="sheet-example"><small>EXAMPLE</small><strong>{word.example}</strong><span>{word.exampleEn}</span><button onClick={() => speak(word.example)}><Icon name="fa-volume-high" /></button></div><button className={`primary-action ${saved ? "secondary" : ""}`} onClick={() => toggleSaved(word.zh)}><Icon name="fa-bookmark" /> {saved ? "Saved to your phrases" : "Save this phrase"}</button></section></div>;
-}
-
-function GrammarSheet({ item, close, speak }) {
-  return <div className="sheet-backdrop" onMouseDown={(e) => e.target === e.currentTarget && close()}><section className="detail-sheet grammar-detail"><div className="sheet-handle" /><button className="sheet-close" onClick={close}><Icon name="fa-xmark" /></button><span className={`grammar-symbol ${item.color}`}>{item.mark}</span><small>{item.level.toUpperCase()} · {item.minutes} MIN</small><h2>{item.title}</h2><p>{item.desc}</p><div className="formula-box"><small>PATTERN</small><b>{item.formula}</b></div><div className="grammar-example"><small>EXAMPLE</small><strong>{item.example}</strong><span>{item.py}</span><b>{item.en}</b><button onClick={() => speak(item.example)}><Icon name="fa-volume-high" /></button></div><button className="primary-action" onClick={close}>Got it <Icon name="fa-check" /></button></section></div>;
+  if (!ready) return <LoadingScreen/>;
+  if (!session) return <AuthPortal onSession={setSession}/>;
+  return <LearningApp session={session}/>;
 }
