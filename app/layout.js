@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./auth-polish.css";
 
 export const metadata = {
   title: "Mandarin Master - 1000 Words",
