@@ -132,7 +132,7 @@ export default function Home() {
   const [selectedGrammar, setSelectedGrammar] = useState(null);
   const [saved, setSaved] = useState(["你好", "谢谢"]);
   const [notice, setNotice] = useState("");
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
   const [menuOpen, setMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authMode, setAuthMode] = useState("signin");
@@ -324,7 +324,7 @@ function HomeScreen({ go, speak }) {
   const [camera, setCamera] = useState(true);
   const pulseVoice = () => { setListening(true); speak("你好，很高兴认识你"); setTimeout(() => setListening(false), 2400); };
   return <div className="cyber-home">
-    <div className="cyber-topline"><div><span className="system-dot" />LINGOBRIDGE NEURAL</div><div className="offline-pill"><Icon name="fa-cloud-arrow-down" /> Offline ready</div></div>
+    <div className="cyber-topline"><div><span className="system-dot" />LINGOBRIDGE PRO</div><div className="offline-pill"><Icon name="fa-cloud-arrow-down" /> Offline ready</div></div>
     <section className={`ar-stage ${camera ? "camera-on" : ""}`}>
       <div className="neural-grid" /><div className="particle p1" /><div className="particle p2" /><div className="particle p3" />
       <div className="ar-toolbar"><button onClick={() => setCamera(!camera)}><Icon name={camera ? "fa-video" : "fa-video-slash"} /></button><span>LIVE AR TRANSLATION</span><button><Icon name="fa-bolt" /></button></div>
