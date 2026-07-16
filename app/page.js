@@ -110,6 +110,18 @@ const nav = [
   ["profile", "fa-user", "Profile"],
 ];
 
+const menuItems = [
+  ["home", "fa-house", "Home", "Start live translation"],
+  ["discover", "fa-book-open", "Dictionary", "Search words and phrases"],
+  ["learn", "fa-graduation-cap", "Lessons", "Practice daily Chinese"],
+  ["learn", "fa-circle-question", "Quizzes", "Test your memory"],
+  ["learn", "fa-trophy", "Challenges", "Build your streak"],
+  ["grammar", "fa-language", "Grammar", "Learn sentence patterns"],
+  ["profile", "fa-user-gear", "Profile", "Progress and saved words"],
+  ["profile", "fa-sliders", "Settings", "Theme and preferences"],
+  ["profile", "fa-headset", "Help", "Support and feedback"],
+];
+
 function Icon({ name }) { return <i className={`fa-solid ${name}`} aria-hidden="true" />; }
 
 export default function Home() {
@@ -120,12 +132,18 @@ export default function Home() {
   const [selectedGrammar, setSelectedGrammar] = useState(null);
   const [saved, setSaved] = useState(["你好", "谢谢"]);
   const [notice, setNotice] = useState("");
+  const [theme, setTheme] = useState("dark");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(""), 2200);
     return () => clearTimeout(timer);
   }, [notice]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const filteredWords = useMemo(() => words.filter((word) => {
     const matchesCategory = activeCategory === "all" || word.category === activeCategory;
@@ -151,13 +169,15 @@ export default function Home() {
     setScreen(next);
     setSelectedWord(null);
     setSelectedGrammar(null);
+    setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <main className="app">
+    <main className={`app theme-${theme}`}>
       <aside className="desktop-sidebar">
         <Brand />
+        <ThemeSwitch theme={theme} setTheme={setTheme} />
         <nav className="desktop-nav" aria-label="Main navigation">
           {nav.map(([id, icon, label]) => (
             <button key={id} className={screen === id ? "active" : ""} onClick={() => go(id)}>
@@ -175,8 +195,10 @@ export default function Home() {
 
       <section className="app-content">
         <header className="mobile-header">
+          <button className="hamburger-button" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><span /><span /><span /></button>
           <Brand compact />
           <div className="header-actions">
+            <ThemeSwitch theme={theme} setTheme={setTheme} compact />
             <button className="icon-button" aria-label="Search" onClick={() => go("discover")}><Icon name="fa-magnifying-glass" /></button>
             <button className="avatar-button" aria-label="Profile" onClick={() => go("profile")}>MA</button>
           </div>
@@ -201,6 +223,7 @@ export default function Home() {
 
       {selectedWord && <WordSheet word={selectedWord} saved={saved.includes(selectedWord.zh)} close={() => setSelectedWord(null)} speak={speak} toggleSaved={toggleSaved} />}
       {selectedGrammar && <GrammarSheet item={selectedGrammar} close={() => setSelectedGrammar(null)} speak={speak} />}
+      <MenuDrawer open={menuOpen} close={() => setMenuOpen(false)} go={go} screen={screen} theme={theme} setTheme={setTheme} />
       <div className={`toast ${notice ? "show" : ""}`} role="status"><Icon name="fa-volume-high" /> {notice}</div>
     </main>
   );
@@ -208,6 +231,40 @@ export default function Home() {
 
 function Brand({ compact = false }) {
   return <div className={`brand ${compact ? "compact" : ""}`}><span className="brand-mark">译</span><div><b>Lingo<span>Bridge</span></b>{!compact && <small>Mandarin, made natural.</small>}</div></div>;
+}
+
+function ThemeSwitch({ theme, setTheme, compact = false }) {
+  const isLight = theme === "light";
+  return <button className={`theme-switch ${isLight ? "light" : ""} ${compact ? "compact" : ""}`} onClick={() => setTheme(isLight ? "dark" : "light")} aria-label={`Switch to ${isLight ? "dark" : "light"} mode`}>
+    <span><Icon name={isLight ? "fa-sun" : "fa-moon"} /></span>
+    {!compact && <b>{isLight ? "Light" : "Dark"} mode</b>}
+  </button>;
+}
+
+function MenuDrawer({ open, close, go, screen, theme, setTheme }) {
+  return <div className={`menu-backdrop ${open ? "open" : ""}`} onMouseDown={(event) => event.target === event.currentTarget && close()}>
+    <aside className="menu-drawer" aria-hidden={!open}>
+      <div className="menu-head">
+        <Brand />
+        <button className="menu-close" onClick={close} aria-label="Close menu"><Icon name="fa-xmark" /></button>
+      </div>
+      <div className="menu-profile">
+        <div className="menu-avatar">MA</div>
+        <div><b>Mahir</b><span>Mandarin Explorer · Level 4</span></div>
+      </div>
+      <ThemeSwitch theme={theme} setTheme={setTheme} />
+      <nav className="menu-list" aria-label="Menu">
+        {menuItems.map(([target, icon, label, desc], index) => (
+          <button key={`${label}-${index}`} className={screen === target ? "active" : ""} onClick={() => go(target)}>
+            <span><Icon name={icon} /></span>
+            <div><b>{label}</b><small>{desc}</small></div>
+            <Icon name="fa-chevron-right" />
+          </button>
+        ))}
+      </nav>
+      <div className="menu-footer"><Icon name="fa-shield-heart" /> Offline ready · AI assisted · EN / 中文 / አማርኛ</div>
+    </aside>
+  </div>;
 }
 
 function HomeScreen({ go, speak }) {
