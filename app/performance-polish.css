@@ -1,0 +1,317 @@
+/* Performance, polish, motion and interaction layer — loaded last. */
+:root {
+  --motion-fast: 120ms;
+  --motion-normal: 190ms;
+  --motion-slow: 280ms;
+  --ease-out: cubic-bezier(.2,.8,.2,1);
+  --brand-purple: #7c3aed;
+  --brand-purple-deep: #5b21b6;
+  --brand-purple-soft: #f3e8ff;
+  --brand-blue-deep: #1e40af;
+  --brand-black: #111827;
+  --success: #00897b;
+  --warning: #b45309;
+}
+
+[data-theme="dark"] {
+  --brand-purple: #c4b5fd;
+  --brand-purple-deep: #ddd6fe;
+  --brand-purple-soft: #2e1f4f;
+  --brand-blue-deep: #93c5fd;
+  --brand-black: #f8fafc;
+  --success: #5eead4;
+  --warning: #fcd34d;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+button {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Faster, consistent interaction feedback. */
+button,
+.category-card,
+.word-row-new,
+.quiz-card,
+.grammar-grid-new > button,
+.settings-list button,
+.cyber-modes > button,
+.auth-card,
+.detail-sheet {
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-normal) var(--ease-out),
+    border-color var(--motion-normal) var(--ease-out),
+    background-color var(--motion-normal) var(--ease-out),
+    color var(--motion-normal) var(--ease-out),
+    opacity var(--motion-fast) ease !important;
+}
+
+button:active,
+.category-card:active,
+.word-row-new:active,
+.quiz-card:active,
+.grammar-grid-new > button:active,
+.settings-list button:active,
+.cyber-modes > button:active {
+  transform: scale(.975) !important;
+}
+
+@media (hover:hover) {
+  .category-card:hover,
+  .word-row-new:hover,
+  .quiz-card:hover,
+  .grammar-grid-new > button:hover,
+  .settings-list button:hover,
+  .cyber-modes > button:hover {
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* Reduce browser work for content below the viewport. */
+.category-cards,
+.word-list,
+.basic-grid,
+.quiz-grid,
+.challenge-list,
+.grammar-grid-new,
+.settings-list,
+.conversation-preview,
+.learning-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+.screen-wrap {
+  animation-duration: var(--motion-slow) !important;
+  will-change: opacity, transform;
+}
+
+.mobile-header,
+.desktop-sidebar,
+.bottom-nav,
+.menu-drawer {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Cleaner, faster-feeling surfaces. */
+.category-card,
+.word-row-new,
+.example-card,
+.basic-card,
+.quiz-card,
+.challenge-list article,
+.grammar-grid-new > button,
+.profile-hero,
+.weekly-card,
+.settings-list button,
+.practice-card,
+.voice-console,
+.conversation-preview,
+.auth-card {
+  box-shadow: 0 10px 30px rgba(28, 38, 65, .08) !important;
+}
+
+[data-theme="dark"] .category-card,
+[data-theme="dark"] .word-row-new,
+[data-theme="dark"] .example-card,
+[data-theme="dark"] .basic-card,
+[data-theme="dark"] .quiz-card,
+[data-theme="dark"] .challenge-list article,
+[data-theme="dark"] .grammar-grid-new > button,
+[data-theme="dark"] .profile-hero,
+[data-theme="dark"] .weekly-card,
+[data-theme="dark"] .settings-list button,
+[data-theme="dark"] .practice-card,
+[data-theme="dark"] .voice-console,
+[data-theme="dark"] .conversation-preview,
+[data-theme="dark"] .auth-card {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .24) !important;
+}
+
+/* Global language identity. */
+.word-copy strong,
+.word-main strong,
+.practice-card > strong,
+.sheet-word strong,
+.translation-bubble b,
+.voice-result > span,
+.speaker-right b,
+.street-sign,
+.grammar-example strong,
+.sheet-example strong,
+.basic-card p span,
+[lang="zh"],
+[data-lang="zh"],
+.lang-zh,
+.chinese {
+  color: var(--brand-purple) !important;
+  -webkit-text-fill-color: var(--brand-purple) !important;
+}
+
+.word-copy .word-en,
+.translations > span:first-child,
+.meaning-grid > div:first-child b,
+.voice-result > b,
+.speaker-left b,
+.example-card em,
+.sheet-translations > div:first-child b,
+[data-lang="en"],
+.lang-en,
+.english {
+  color: var(--brand-black) !important;
+  -webkit-text-fill-color: var(--brand-black) !important;
+}
+
+[lang="am"],
+.word-am,
+.translations > span:last-child,
+.meaning-grid > div:last-child b,
+.voice-result em,
+.sheet-translations > div:last-child b,
+[data-lang="am"],
+.lang-am,
+.amharic {
+  color: var(--brand-blue-deep) !important;
+  -webkit-text-fill-color: var(--brand-blue-deep) !important;
+  text-shadow: none !important;
+}
+
+.word-copy > div span,
+.practice-card > em,
+.sheet-word > span,
+.word-main > span {
+  color: var(--brand-purple-deep) !important;
+  -webkit-text-fill-color: var(--brand-purple-deep) !important;
+}
+
+/* Primary actions and selected navigation. */
+.primary-action,
+.auth-submit,
+.category-scroll button.active,
+.desktop-nav button.active,
+.bottom-nav button.active .nav-icon,
+.quiz-card > i,
+.profile-avatar,
+.menu-avatar {
+  background: linear-gradient(135deg, var(--brand-purple), var(--brand-purple-deep)) !important;
+  border-color: transparent !important;
+}
+
+.primary-action,
+.auth-submit,
+.category-scroll button.active,
+.quiz-card > i,
+.profile-avatar,
+.menu-avatar {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+[data-theme="dark"] .primary-action,
+[data-theme="dark"] .auth-submit,
+[data-theme="dark"] .category-scroll button.active {
+  color: #160b2c !important;
+  -webkit-text-fill-color: #160b2c !important;
+}
+
+/* Improve tap targets and form usability. */
+.bottom-nav button,
+.desktop-nav button,
+.menu-list button,
+.category-scroll button,
+.icon-button,
+.avatar-button,
+.hamburger-button,
+.theme-switch,
+.save-button,
+.word-audio {
+  min-height: 44px;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
+
+.search-box input {
+  font-size: 14px !important;
+}
+
+/* Responsive spacing and less layout shift. */
+@media (max-width: 560px) {
+  .screen-wrap {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .practice-card,
+  .voice-console,
+  .conversation-preview,
+  .auth-card {
+    border-radius: 22px !important;
+  }
+
+  .category-cards {
+    gap: 9px !important;
+  }
+
+  .word-row-new {
+    min-height: 76px;
+  }
+}
+
+/* Respect accessibility settings and improve low-end device performance. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@media (update: slow) {
+  .particle,
+  .scan-line,
+  .neural-grid,
+  .auth-orbit,
+  .orbit-line {
+    animation: none !important;
+  }
+
+  .mobile-header,
+  .desktop-sidebar,
+  .bottom-nav,
+  .menu-drawer,
+  .translation-bubble,
+  .copilot {
+    backdrop-filter: none !important;
+  }
+}
