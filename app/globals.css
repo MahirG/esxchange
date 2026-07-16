@@ -434,4 +434,73 @@
         .pron-toast.mid .pron-toast-score { color: var(--gold); }
         .pron-toast.low .pron-toast-score { color: var(--red); }
 
-    
+        /* 2026 visual refresh — calm, editorial and product-first */
+        :root {
+            --emerald: #087F67;
+            --gold: #F5C451;
+            --gold-text: #8A6100;
+            --black: #101827;
+            --ink: #101827;
+            --ink-2: #536075;
+            --ink-3: #718096;
+            --light-bg: #F4F7FB;
+            --glass: rgba(255,255,255,.82);
+            --r-xl: 32px;
+            --shadow-1: 0 8px 30px rgba(30, 45, 70, .07);
+            --shadow-2: 0 18px 50px rgba(30, 45, 70, .13);
+        }
+        body { background: radial-gradient(circle at 50% 10%, #e8f6f2 0, #eef1f7 45%, #dfe5ee 100%); }
+        .phone-container { background: var(--light-bg); border: 1px solid rgba(255,255,255,.8); }
+        .screen { padding-left: 22px; padding-right: 22px; }
+        .hamburger-btn { border-radius: 14px; box-shadow: var(--shadow-1); }
+        .home-header { margin-bottom: 20px; }
+        .avatar { background: linear-gradient(145deg,#dff7ef,#fff); color: var(--emerald); border: 1px solid #d3eee6; }
+        .stat-chip { border: 1px solid #edf0f5; box-shadow: none; }
+        .hero-card { background: linear-gradient(145deg,#0b876e,#075c50); border-radius: 30px; padding: 26px; box-shadow: 0 18px 40px rgba(8,127,103,.24); }
+        .hero-card:after { content:'你好'; position:absolute; right:18px; top:7px; color:rgba(255,255,255,.07); font-family:var(--font-zh); font-weight:800; font-size:90px; }
+        .hero-label { text-transform: uppercase; letter-spacing: .12em; font-size: 10px; font-weight: 800; }
+        .hero-title { letter-spacing: -.03em; }
+        .start-btn { padding: 11px 20px; border-radius: 14px; }
+        .section-title { letter-spacing: -.025em; }
+        .vocab-progress-card,.glass-card,.cat-card,.word-row,.translation-card { border:1px solid #e9edf3; box-shadow:var(--shadow-1); }
+        .glass-card { background:#fff; height:116px; border-radius:22px; }
+        .ai-coach { background:linear-gradient(135deg,#151e2f,#0d1320); box-shadow:0 16px 36px rgba(16,24,39,.2); }
+        .category-grid { gap:14px; }
+        .cat-card { min-height:145px; border-radius:22px; padding:18px; }
+        .cat-icon { width:44px; height:44px; border-radius:14px; box-shadow:inset 0 1px rgba(255,255,255,.3); }
+        .cat-name { margin-top:5px; letter-spacing:-.02em; }
+        .word-row { border-radius:20px; }
+        .nav-bar { width:calc(100% - 28px); bottom:14px; padding:9px 7px; border:1px solid rgba(225,231,240,.9); border-radius:24px; box-shadow:0 14px 40px rgba(25,38,62,.16); }
+        .nav-item { gap:3px; border-radius:17px; font-size:9px; }
+        .nav-item i { font-size:18px; }
+        .nav-item.active { background:#e6f4f0; color:var(--emerald); }
+
+        /* Grammar hub */
+        #grammar { background:linear-gradient(180deg,#f7fbfa 0,#f4f7fb 38%); }
+        .page-eyebrow { margin-left:50px; color:var(--emerald); font-size:10px; letter-spacing:.15em; font-weight:900; margin-bottom:12px; }
+        .grammar-heading { display:flex; align-items:flex-start; gap:12px; margin-bottom:22px; }
+        .grammar-heading h1 { font-size:30px; line-height:1.05; letter-spacing:-.05em; margin-bottom:8px; }
+        .grammar-heading p { color:var(--ink-2); font-size:13px; line-height:1.55; }
+        .grammar-mark { flex:0 0 54px; height:54px; display:grid; place-items:center; border-radius:18px; background:#101827; color:#fff; font-size:27px; font-family:var(--font-zh); box-shadow:var(--shadow-2); }
+        .grammar-feature { background:linear-gradient(145deg,#14223a,#0d1525); color:#fff; border-radius:28px; padding:22px; margin-bottom:24px; box-shadow:0 20px 45px rgba(16,24,39,.2); }
+        .lesson-pill { display:inline-block; font-size:9px; font-weight:900; letter-spacing:.1em; color:#8ee5ce; background:rgba(80,210,175,.12); padding:6px 9px; border-radius:8px; margin-bottom:12px; }
+        .grammar-feature h2 { font-size:22px; letter-spacing:-.03em; margin-bottom:13px; }
+        .formula { font-size:12px; color:#d7deea; padding:11px 12px; background:rgba(255,255,255,.07); border-radius:12px; margin-bottom:16px; }
+        .formula b { color:#6ee7c4; padding:0 2px; }
+        .example-line { display:flex; flex-direction:column; gap:3px; }
+        .example-line strong { font-family:var(--font-zh); font-size:18px; }
+        .example-line span,.example-trans { color:#aeb9ca; font-size:11px; }
+        .example-trans { display:flex; justify-content:space-between; gap:10px; padding-top:9px; font-family:var(--font-main); }
+        .example-trans span:last-child { font-family:var(--font-am); text-align:right; }
+        .grammar-cta { width:100%; margin-top:18px; padding:12px 15px; display:flex; justify-content:space-between; border:0; border-radius:13px; background:#68dbbb; color:#0b2e27; font-weight:800; cursor:pointer; }
+        .grammar-section-title { font-size:17px; margin-bottom:12px; }
+        .level-chip { font-size:10px; font-weight:700; letter-spacing:0; color:var(--ink-3); background:#e8edf4; padding:5px 8px; border-radius:8px; }
+        .grammar-list { display:flex; flex-direction:column; gap:10px; }
+        .grammar-row { width:100%; display:grid; grid-template-columns:44px 1fr auto; gap:12px; align-items:center; text-align:left; background:#fff; border:1px solid #e9edf3; border-radius:18px; padding:12px; color:var(--ink); box-shadow:var(--shadow-1); cursor:pointer; }
+        .grammar-row span:nth-child(2) { display:flex; flex-direction:column; gap:4px; }
+        .grammar-row b { font-size:13px; }
+        .grammar-row small { font-size:10px; color:var(--ink-3); }
+        .grammar-row>i { font-size:11px; color:#9aa5b5; }
+        .grammar-icon { width:44px; height:44px; display:grid; place-items:center; border-radius:13px; font-family:var(--font-zh); font-weight:800; }
+        .grammar-icon.blue { background:#e7f0ff; color:#2563eb; }.grammar-icon.coral { background:#fff0ed; color:#e85d45; }.grammar-icon.violet { background:#f1eafe; color:#7c3aed; }.grammar-icon.mint { background:#e6f7f1; color:#087f67; }
+
