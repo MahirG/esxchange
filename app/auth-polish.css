@@ -222,3 +222,192 @@
   .auth-screen { align-items: start; }
   .auth-visual { min-height: 500px; }
 }
+
+/* Final contrast and color-psychology layer.
+   Blue communicates trust, teal communicates progress, amber communicates reward,
+   and red is reserved for errors. All text tokens meet strong day/night contrast. */
+[data-theme="light"] {
+  --auth-bg: #f5f8fc;
+  --auth-surface: #ffffff;
+  --auth-surface-soft: #eef4fb;
+  --auth-text: #102033;
+  --auth-text-secondary: #40556d;
+  --auth-text-muted: #5f7185;
+  --auth-border: #cfdbea;
+  --auth-trust: #1a73e8;
+  --auth-trust-hover: #1558b0;
+  --auth-growth: #00796b;
+  --auth-reward: #9a6700;
+  --auth-danger: #b3261e;
+  --auth-placeholder: #6d7e91;
+}
+
+[data-theme="dark"] {
+  --auth-bg: #08111f;
+  --auth-surface: #111c2f;
+  --auth-surface-soft: #192840;
+  --auth-text: #f7fbff;
+  --auth-text-secondary: #d4e1ee;
+  --auth-text-muted: #afc0d2;
+  --auth-border: #354965;
+  --auth-trust: #8ab4f8;
+  --auth-trust-hover: #aecbfa;
+  --auth-growth: #6ee7d8;
+  --auth-reward: #fdd663;
+  --auth-danger: #ffb4ab;
+  --auth-placeholder: #9fb0c3;
+}
+
+.auth-app {
+  color: var(--auth-text) !important;
+  background-color: var(--auth-bg) !important;
+}
+
+.auth-card,
+.auth-visual {
+  color: var(--auth-text) !important;
+  background-color: var(--auth-surface) !important;
+  border-color: var(--auth-border) !important;
+}
+
+.auth-card h1,
+.auth-card strong,
+.auth-card b,
+.auth-header .brand b,
+.auth-phone b {
+  color: var(--auth-text) !important;
+}
+
+.auth-card > p,
+.auth-card label span,
+.auth-note,
+.auth-divider,
+.auth-header .brand small,
+.auth-phone small {
+  color: var(--auth-text-secondary) !important;
+}
+
+.auth-card .eyebrow,
+.auth-header .brand b span,
+.auth-phone em {
+  color: var(--auth-trust) !important;
+}
+
+.auth-card input,
+.auth-card select {
+  color: var(--auth-text) !important;
+  background: var(--auth-surface-soft) !important;
+  border-color: var(--auth-border) !important;
+  caret-color: var(--auth-trust);
+}
+
+.auth-card input::placeholder {
+  color: var(--auth-placeholder) !important;
+  opacity: 1;
+}
+
+.auth-card select option {
+  color: var(--auth-text);
+  background: var(--auth-surface);
+}
+
+.auth-card input:hover,
+.auth-card select:hover {
+  border-color: var(--auth-trust) !important;
+}
+
+.auth-card input:focus,
+.auth-card select:focus {
+  border-color: var(--auth-trust) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--auth-trust) 22%, transparent) !important;
+}
+
+.auth-tabs {
+  background: var(--auth-surface-soft) !important;
+  border-color: var(--auth-border) !important;
+}
+
+.auth-tabs button {
+  color: var(--auth-text-secondary) !important;
+}
+
+.auth-tabs button.active {
+  color: var(--auth-trust) !important;
+  background: var(--auth-surface) !important;
+}
+
+.auth-submit {
+  color: #ffffff !important;
+  background: #1a73e8 !important;
+}
+
+.auth-submit:hover {
+  background: #1558b0 !important;
+}
+
+.social-auth button {
+  color: var(--auth-text) !important;
+  background: var(--auth-surface) !important;
+  border-color: var(--auth-border) !important;
+}
+
+.social-auth button:hover {
+  color: var(--auth-trust) !important;
+  background: var(--auth-surface-soft) !important;
+  border-color: var(--auth-trust) !important;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  background: var(--auth-border) !important;
+}
+
+.auth-header .theme-switch {
+  color: var(--auth-text) !important;
+  background: var(--auth-surface) !important;
+  border-color: var(--auth-border) !important;
+}
+
+.auth-header .theme-switch span,
+.auth-phone span {
+  color: #ffffff !important;
+  background: #1a73e8 !important;
+}
+
+[data-theme="dark"] .auth-submit,
+[data-theme="dark"] .auth-header .theme-switch span,
+[data-theme="dark"] .auth-phone span {
+  color: #071426 !important;
+  background: #8ab4f8 !important;
+}
+
+[data-theme="dark"] .auth-card input,
+[data-theme="dark"] .auth-card select {
+  color-scheme: dark;
+}
+
+.auth-card button:focus-visible,
+.auth-card input:focus-visible,
+.auth-card select:focus-visible,
+.auth-header button:focus-visible {
+  outline: 3px solid var(--auth-trust) !important;
+  outline-offset: 3px;
+}
+
+.auth-card input:-webkit-autofill,
+.auth-card input:-webkit-autofill:hover,
+.auth-card input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--auth-text) !important;
+  box-shadow: 0 0 0 1000px var(--auth-surface-soft) inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
+::selection {
+  color: #ffffff;
+  background: #1a73e8;
+}
+
+[data-theme="dark"] ::selection {
+  color: #071426;
+  background: #8ab4f8;
+}
