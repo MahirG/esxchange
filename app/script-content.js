@@ -9,6 +9,10 @@ const appScript = `
             { id: 'numbers',   name: 'Numbers',   am: 'ቁጥሮች',  icon: 'fa-hashtag',     color: '#3B82F6', tier: 'free' },
             { id: 'travel',    name: 'Travel',    am: 'ጉዞ',     icon: 'fa-plane',       color: '#8B5CF6', tier: 'plus' },
             { id: 'time',      name: 'Time',      am: 'ጊዜ',     icon: 'fa-clock',       color: '#10B981', tier: 'premium' }
+            ,{ id: 'business',  name: 'Business',  am: 'ንግድ',    icon: 'fa-briefcase',   color: '#2563EB', tier: 'plus' }
+            ,{ id: 'shopping',  name: 'Shopping',  am: 'ግብይት',  icon: 'fa-bag-shopping',color: '#F97316', tier: 'free' }
+            ,{ id: 'health',    name: 'Health',    am: 'ጤና',     icon: 'fa-heart-pulse', color: '#E11D48', tier: 'premium' }
+            ,{ id: 'daily',     name: 'Daily Life',am: 'ዕለታዊ ኑሮ',icon: 'fa-sun',       color: '#7C3AED', tier: 'free' }
         ];
 
         var TIER_RANK = { free: 0, plus: 1, premium: 2 };
@@ -45,6 +49,32 @@ const appScript = `
             time: [
                 { zh: '今天', py: 'jīntiān', en: 'Today', am: 'ዛሬ' },
                 { zh: '明天', py: 'míngtiān', en: 'Tomorrow', am: 'ነገ' }
+            ],
+            business: [
+                { zh: '公司', py: 'gōngsī', en: 'Company', am: 'ኩባንያ' },
+                { zh: '会议', py: 'huìyì', en: 'Meeting', am: 'ስብሰባ' },
+                { zh: '合同', py: 'hétong', en: 'Contract', am: 'ውል' },
+                { zh: '客户', py: 'kèhù', en: 'Customer', am: 'ደንበኛ' },
+                { zh: '价格', py: 'jiàgé', en: 'Price', am: 'ዋጋ' }
+            ],
+            shopping: [
+                { zh: '多少钱？', py: 'duōshao qián?', en: 'How much is it?', am: 'ስንት ነው?' },
+                { zh: '便宜一点', py: 'piányi yìdiǎn', en: 'A little cheaper', am: 'ትንሽ ይቀንሱ' },
+                { zh: '我要这个', py: 'wǒ yào zhège', en: 'I want this one', am: 'ይህን እፈልጋለሁ' },
+                { zh: '可以刷卡吗？', py: 'kěyǐ shuākǎ ma?', en: 'Can I pay by card?', am: 'በካርድ መክፈል እችላለሁ?' }
+            ],
+            health: [
+                { zh: '医院', py: 'yīyuàn', en: 'Hospital', am: 'ሆስፒታል' },
+                { zh: '医生', py: 'yīshēng', en: 'Doctor', am: 'ዶክተር' },
+                { zh: '我不舒服', py: 'wǒ bù shūfu', en: 'I feel unwell', am: 'ጤና አይሰማኝም' },
+                { zh: '药', py: 'yào', en: 'Medicine', am: 'መድኃኒት' }
+            ],
+            daily: [
+                { zh: '起床', py: 'qǐchuáng', en: 'Wake up', am: 'ከእንቅልፍ መነሳት' },
+                { zh: '工作', py: 'gōngzuò', en: 'Work', am: 'ሥራ' },
+                { zh: '学习', py: 'xuéxí', en: 'Study', am: 'ማጥናት' },
+                { zh: '休息', py: 'xiūxi', en: 'Rest', am: 'ማረፍ' },
+                { zh: '睡觉', py: 'shuìjiào', en: 'Sleep', am: 'መተኛት' }
             ]
         };
 
