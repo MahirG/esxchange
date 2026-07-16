@@ -137,27 +137,43 @@ function Brand({ compact = false }) {
   return <div className={`brand ${compact ? "compact" : ""}`}><span className="brand-mark">译</span><div><b>Lingo<span>Bridge</span></b>{!compact && <small>Mandarin, made natural.</small>}</div></div>;
 }
 
-function HomeScreen({ go, speak, setSelectedWord }) {
-  return <>
-    <div className="welcome-row"><div><span className="eyebrow">THURSDAY, 16 JULY</span><h1>早上好, Mahir <span>👋</span></h1><p>Small steps. Real conversations.</p></div><div className="streak"><Icon name="fa-fire" /><b>12</b><small>day streak</small></div></div>
-    <section className="continue-card">
-      <div className="lesson-art"><span>你</span><i /><i /><i /></div>
-      <div className="continue-copy"><span className="card-kicker">CONTINUE LEARNING</span><h2>Start a conversation</h2><p>Greetings · Lesson 4 of 8</p><div className="lesson-progress"><i style={{ width: "56%" }} /></div><div className="continue-meta"><span>56% complete</span><span>6 min</span></div></div>
-      <button className="round-play" onClick={() => go("learn")} aria-label="Continue lesson"><Icon name="fa-play" /></button>
+function HomeScreen({ go, speak }) {
+  const [listening, setListening] = useState(false);
+  const [camera, setCamera] = useState(true);
+  const pulseVoice = () => { setListening(true); speak("你好，很高兴认识你"); setTimeout(() => setListening(false), 2400); };
+  return <div className="cyber-home">
+    <div className="cyber-topline"><div><span className="system-dot" />LINGOBRIDGE NEURAL</div><div className="offline-pill"><Icon name="fa-cloud-arrow-down" /> Offline ready</div></div>
+    <section className={`ar-stage ${camera ? "camera-on" : ""}`}>
+      <div className="neural-grid" /><div className="particle p1" /><div className="particle p2" /><div className="particle p3" />
+      <div className="ar-toolbar"><button onClick={() => setCamera(!camera)}><Icon name={camera ? "fa-video" : "fa-video-slash"} /></button><span>LIVE AR TRANSLATION</span><button><Icon name="fa-bolt" /></button></div>
+      <div className="scan-line" />
+      <div className="street-scene"><div className="building b1" /><div className="building b2" /><div className="road" /><div className="street-sign">前门大街</div></div>
+      <div className="translation-bubble bubble-one"><small>DETECTED · 中文</small><b>前门大街</b><span>Qianmen Street</span><em>ቺያንሜን ጎዳና</em></div>
+      <div className="translation-bubble bubble-two"><small>LIVE · 98%</small><b>出口</b><span>Exit · መውጫ</span></div>
+      <div className="focus-corners"><i /><i /><i /><i /></div>
+      <div className="copilot"><span className="copilot-core"><i /></span><div><small>NOVA · AI COPILOT</small><b>I found 2 translations</b></div></div>
+      <div className="gesture-hint"><i /><span>Swipe to scan</span></div>
     </section>
-    <div className="section-head"><div><span className="eyebrow">QUICK PRACTICE</span><h2>What do you want to do?</h2></div></div>
-    <div className="quick-grid">
-      <button onClick={() => go("discover")}><span className="quick-icon mint"><Icon name="fa-magnifying-glass" /></span><b>Translate</b><small>Words & phrases</small><Icon name="fa-arrow-right" /></button>
-      <button onClick={() => go("grammar")}><span className="quick-icon blue"><Icon name="fa-language" /></span><b>Grammar</b><small>Build sentences</small><Icon name="fa-arrow-right" /></button>
-      <button onClick={() => go("learn")}><span className="quick-icon violet"><Icon name="fa-microphone" /></span><b>Pronounce</b><small>Speak with confidence</small><Icon name="fa-arrow-right" /></button>
+    <section className={`voice-console ${listening ? "listening" : ""}`}>
+      <div className="language-orbit"><button className="orb en">EN</button><button className="orb zh">中</button><button className="orb am">አ</button><div className="orbit-line" /></div>
+      <div className="voice-title"><span>{listening ? "NEURAL LISTENING" : "VOICE TRANSLATOR"}</span><small>{listening ? "Speak naturally…" : "Tap the core and start speaking"}</small></div>
+      <button className="voice-core" onClick={pulseVoice} aria-label="Start voice translation"><span><Icon name={listening ? "fa-wave-square" : "fa-microphone"} /></span></button>
+      <div className="waveform" aria-hidden="true">{[16,28,44,25,54,34,63,30,48,22,39,18].map((height, i) => <i key={i} style={{ "--wave": `${height}px`, "--delay": `${i * .06}s` }} />)}</div>
+      <div className="voice-result"><span>你好，很高兴认识你</span><b>Hello, nice to meet you</b><em>ሰላም፣ ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል</em></div>
+    </section>
+    <div className="mode-heading"><div><span>NEURAL MODES</span><h2>Translate beyond words</h2></div><button onClick={() => go("discover")}>View all <Icon name="fa-arrow-right" /></button></div>
+    <div className="cyber-modes">
+      <button onClick={() => go("discover")}><span className="mode-icon cyan"><Icon name="fa-camera" /></span><div><b>AR Lens</b><small>Translate the world live</small></div><Icon name="fa-chevron-right" /></button>
+      <button onClick={() => go("learn")}><span className="mode-icon magenta"><Icon name="fa-user-group" /></span><div><b>Conversation</b><small>Real-time two-way mode</small></div><Icon name="fa-chevron-right" /></button>
+      <button onClick={() => go("grammar")}><span className="mode-icon blue"><Icon name="fa-brain" /></span><div><b>AI Grammar</b><small>Understand every pattern</small></div><Icon name="fa-chevron-right" /></button>
     </div>
-    <div className="section-head inline"><div><span className="eyebrow">WORD OF THE DAY</span><h2>Learn something useful</h2></div><button onClick={() => setSelectedWord(words[2])}>See details</button></div>
-    <article className="word-of-day" onClick={() => setSelectedWord(words[2])}>
-      <button className="sound-orb" onClick={(e) => { e.stopPropagation(); speak(words[2].zh); }}><Icon name="fa-volume-high" /></button>
-      <div className="word-main"><strong>很高兴认识你</strong><span>hěn gāoxìng rènshi nǐ</span></div>
-      <div className="translations"><span><small>ENGLISH</small>Nice to meet you</span><span><small>አማርኛ</small>ከእርስዎ ጋር በመተዋወቄ ደስ ብሎኛል</span></div>
-    </article>
-  </>;
+    <section className="conversation-preview">
+      <div className="conversation-head"><span>LIVE CONVERSATION</span><div><i />SECURE</div></div>
+      <div className="speaker speaker-left"><div className="holo-avatar">M</div><span><b>How are you today?</b><small>English · Mahir</small></span></div>
+      <div className="conversation-wave"><i /><i /><i /><i /><i /><span><Icon name="fa-arrows-rotate" /></span><i /><i /><i /><i /><i /></div>
+      <div className="speaker speaker-right"><span><b>你今天好吗？</b><small>中文 · Nova voice</small></span><div className="holo-avatar chinese">林</div></div>
+    </section>
+  </div>;
 }
 
 function DiscoverScreen({ query, setQuery, activeCategory, setActiveCategory, filteredWords, saved, toggleSaved, speak, setSelectedWord }) {
