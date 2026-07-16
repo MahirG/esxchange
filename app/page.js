@@ -134,6 +134,8 @@ export default function Home() {
   const [notice, setNotice] = useState("");
   const [theme, setTheme] = useState("dark");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authMode, setAuthMode] = useState("signin");
 
   useEffect(() => {
     if (!notice) return;
@@ -173,6 +175,28 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleAuth = () => {
+    setIsAuthenticated(true);
+    setNotice(authMode === "signup" ? "Account created" : "Signed in");
+  };
+
+  const signOut = () => {
+    setIsAuthenticated(false);
+    setMenuOpen(false);
+    setNotice("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (!isAuthenticated) {
+    return <main className={`app auth-app theme-${theme}`}>
+      <header className="auth-header">
+        <Brand />
+        <ThemeSwitch theme={theme} setTheme={setTheme} />
+      </header>
+      <AuthScreen mode={authMode} setMode={setAuthMode} submit={handleAuth} />
+    </main>;
+  }
+
   return (
     <main className={`app theme-${theme}`}>
       <aside className="desktop-sidebar">
@@ -209,7 +233,7 @@ export default function Home() {
           {screen === "discover" && <DiscoverScreen query={query} setQuery={setQuery} activeCategory={activeCategory} setActiveCategory={setActiveCategory} filteredWords={filteredWords} saved={saved} toggleSaved={toggleSaved} speak={speak} setSelectedWord={setSelectedWord} />}
           {screen === "learn" && <LearnScreen speak={speak} setSelectedWord={setSelectedWord} />}
           {screen === "grammar" && <GrammarScreen setSelectedGrammar={setSelectedGrammar} />}
-          {screen === "profile" && <ProfileScreen saved={saved.length} />}
+          {screen === "profile" && <ProfileScreen saved={saved.length} signOut={signOut} />}
         </div>
       </section>
 
@@ -265,6 +289,34 @@ function MenuDrawer({ open, close, go, screen, theme, setTheme }) {
       <div className="menu-footer"><Icon name="fa-shield-heart" /> Offline ready · AI assisted · EN / 中文 / አማርኛ</div>
     </aside>
   </div>;
+}
+
+function AuthScreen({ mode, setMode, submit }) {
+  const isSignup = mode === "signup";
+  return <section className="auth-screen">
+    <div className="auth-visual" aria-hidden="true">
+      <div className="auth-orbit one" /><div className="auth-orbit two" /><div className="auth-phone">
+        <span>译</span><b>你好</b><em lang="am">ሰላም</em><small>AI translation locked</small>
+      </div>
+    </div>
+    <form className="auth-card" onSubmit={(event) => { event.preventDefault(); submit(); }}>
+      <span className="eyebrow">SECURE ACCESS</span>
+      <h1>{isSignup ? "Create your LingoBridge account." : "Sign in to continue learning."}</h1>
+      <p>Access live translation, saved phrases, quizzes, grammar lessons, and your daily Chinese progress.</p>
+      <div className="auth-tabs" role="tablist" aria-label="Authentication mode">
+        <button type="button" className={!isSignup ? "active" : ""} onClick={() => setMode("signin")}>Sign in</button>
+        <button type="button" className={isSignup ? "active" : ""} onClick={() => setMode("signup")}>Sign up</button>
+      </div>
+      {isSignup && <label><span>Full name</span><input placeholder="Mahir Aman" autoComplete="name" /></label>}
+      <label><span>Email address</span><input type="email" placeholder="mahir@example.com" autoComplete="email" required /></label>
+      <label><span>Password</span><input type="password" placeholder="••••••••" autoComplete={isSignup ? "new-password" : "current-password"} required /></label>
+      {isSignup && <label><span>Learning language</span><select defaultValue="am-en"><option value="am-en">English + አማርኛ</option><option value="en">English only</option><option value="am">አማርኛ only</option></select></label>}
+      <button className="auth-submit" type="submit">{isSignup ? "Create account" : "Sign in"} <Icon name="fa-arrow-right" /></button>
+      <div className="auth-divider"><span>or continue with</span></div>
+      <div className="social-auth"><button type="button" onClick={submit}><Icon name="fa-g" /> Google</button><button type="button" onClick={submit}><Icon name="fa-mobile-screen" /> Phone</button></div>
+      <small className="auth-note">{isSignup ? "By creating an account, you agree to save your learning progress securely." : "New here? Create an account to save words and continue across devices."}</small>
+    </form>
+  </section>;
 }
 
 function HomeScreen({ go, speak }) {
@@ -361,12 +413,12 @@ function GrammarScreen({ setSelectedGrammar }) {
   </>;
 }
 
-function ProfileScreen({ saved }) {
+function ProfileScreen({ saved, signOut }) {
   return <>
     <PageTitle eyebrow="YOUR PROGRESS" title="You are building momentum." text="Every phrase learned brings you closer to a real conversation." />
     <div className="profile-hero"><div className="profile-avatar">MA<span>4</span></div><h2>Mahir Aman</h2><p>Mandarin Explorer · Addis Ababa</p><div className="profile-stats"><div><b>12</b><small>Day streak</small></div><div><b>{words.length}</b><small>Words ready</small></div><div><b>{saved}</b><small>Saved phrases</small></div></div></div>
     <div className="weekly-card"><div><span><Icon name="fa-chart-line" /></span><div><b>Weekly activity</b><small>42 minutes this week</small></div><em>+18%</em></div><div className="week-bars">{[38,72,52,88,64,28,10].map((height, i) => <span key={i}><i style={{ height: `${height}%` }} /><small>{["M","T","W","T","F","S","S"][i]}</small></span>)}</div></div>
-    <div className="settings-list"><button><span><Icon name="fa-sliders" /></span><div><b>Learning preferences</b><small>Goals, reminders and level</small></div><Icon name="fa-chevron-right" /></button><button><span><Icon name="fa-language" /></span><div><b>Translation language</b><small>English + አማርኛ</small></div><Icon name="fa-chevron-right" /></button><button><span><Icon name="fa-circle-question" /></span><div><b>Help & feedback</b><small>We would love to hear from you</small></div><Icon name="fa-chevron-right" /></button></div>
+    <div className="settings-list"><button><span><Icon name="fa-sliders" /></span><div><b>Learning preferences</b><small>Goals, reminders and level</small></div><Icon name="fa-chevron-right" /></button><button><span><Icon name="fa-language" /></span><div><b>Translation language</b><small>English + አማርኛ</small></div><Icon name="fa-chevron-right" /></button><button><span><Icon name="fa-circle-question" /></span><div><b>Help & feedback</b><small>We would love to hear from you</small></div><Icon name="fa-chevron-right" /></button><button onClick={signOut}><span><Icon name="fa-right-from-bracket" /></span><div><b>Sign out</b><small>Return to secure access screen</small></div><Icon name="fa-chevron-right" /></button></div>
   </>;
 }
 
