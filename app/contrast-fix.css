@@ -8,6 +8,9 @@
   --contrast-muted: #64748b;
   --contrast-border: #d7e0eb;
   --contrast-primary: #1a73e8;
+  --lesson-purple: #6d28d9;
+  --lesson-purple-dark: #4c1d95;
+  --lesson-purple-soft: #f3e8ff;
 }
 
 [data-theme="dark"] {
@@ -19,6 +22,9 @@
   --contrast-muted: #aebed0;
   --contrast-border: #354965;
   --contrast-primary: #8ab4f8;
+  --lesson-purple: #c4b5fd;
+  --lesson-purple-dark: #ede9fe;
+  --lesson-purple-soft: #2e1f4f;
 }
 
 /* Authentication surfaces */
@@ -141,4 +147,74 @@
 .auth-card input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--contrast-text) !important;
   box-shadow: 0 0 0 1000px var(--contrast-soft) inset !important;
+}
+
+/* Lesson card readability: never place white or near-white text on the white card. */
+[data-theme="light"] .practice-card {
+  background: #ffffff !important;
+  border-color: #ddd6fe !important;
+  color: var(--lesson-purple-dark) !important;
+}
+
+[data-theme="light"] .practice-card .practice-label,
+[data-theme="light"] .practice-card > strong,
+[data-theme="light"] .practice-card > em,
+[data-theme="light"] .practice-card .meaning-grid b,
+[data-theme="light"] .practice-card .meaning-grid small,
+[data-theme="light"] .practice-card [lang="am"] {
+  color: var(--lesson-purple-dark) !important;
+  -webkit-text-fill-color: var(--lesson-purple-dark) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+[data-theme="light"] .practice-card > strong {
+  color: var(--lesson-purple) !important;
+  -webkit-text-fill-color: var(--lesson-purple) !important;
+}
+
+[data-theme="light"] .practice-card .practice-label,
+[data-theme="light"] .practice-card > em {
+  color: #7e22ce !important;
+  -webkit-text-fill-color: #7e22ce !important;
+}
+
+[data-theme="light"] .practice-card .big-sound {
+  background: var(--lesson-purple-soft) !important;
+  border-color: #c4b5fd !important;
+  color: var(--lesson-purple-dark) !important;
+  -webkit-text-fill-color: var(--lesson-purple-dark) !important;
+}
+
+[data-theme="light"] .practice-card .big-sound span {
+  background: var(--lesson-purple) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+[data-theme="light"] .practice-card .meaning-grid,
+[data-theme="light"] .practice-card .meaning-grid > div + div {
+  border-color: #ddd6fe !important;
+}
+
+[data-theme="dark"] .practice-card {
+  background: linear-gradient(145deg, #171126, #21163a) !important;
+  border-color: #5b3f86 !important;
+}
+
+[data-theme="dark"] .practice-card .practice-label,
+[data-theme="dark"] .practice-card > strong,
+[data-theme="dark"] .practice-card > em,
+[data-theme="dark"] .practice-card .meaning-grid b,
+[data-theme="dark"] .practice-card .meaning-grid small,
+[data-theme="dark"] .practice-card [lang="am"],
+[data-theme="dark"] .practice-card .big-sound {
+  color: var(--lesson-purple-dark) !important;
+  -webkit-text-fill-color: var(--lesson-purple-dark) !important;
+  opacity: 1 !important;
+}
+
+[data-theme="dark"] .practice-card .big-sound {
+  background: var(--lesson-purple-soft) !important;
+  border-color: #6d4b99 !important;
 }
