@@ -38,6 +38,9 @@ const markup = `
             <button type="button" class="side-menu-item as-control" data-screen="lesson" onclick="switchScreen('lesson')">
                 <i class="fas fa-graduation-cap" aria-hidden="true"></i> Lessons
             </button>
+            <button type="button" class="side-menu-item as-control" data-screen="grammar" onclick="switchScreen('grammar')">
+                <i class="fas fa-language" aria-hidden="true"></i> Grammar
+            </button>
             <button type="button" class="side-menu-item as-control" data-screen="journey" onclick="switchScreen('journey')">
                 <i class="fas fa-route" aria-hidden="true"></i> Journey
             </button>
@@ -212,6 +215,30 @@ const markup = `
             </div>
         </div>
 
+        <!-- GRAMMAR SCREEN -->
+        <div class="screen hidden" id="grammar" role="tabpanel" aria-label="Grammar" hidden>
+            <div class="page-eyebrow">LANGUAGE LAB</div>
+            <div class="grammar-heading">
+                <div><h1>Grammar, made clear.</h1><p>Build natural Chinese sentences with simple English and Amharic guidance.</p></div>
+                <div class="grammar-mark">语</div>
+            </div>
+            <div class="grammar-feature">
+                <span class="lesson-pill">START HERE · HSK 1</span>
+                <h2>Chinese word order</h2>
+                <p class="formula">Subject <b>+</b> Time <b>+</b> Place <b>+</b> Verb <b>+</b> Object</p>
+                <div class="example-line"><strong>我今天在家学习中文。</strong><span>Wǒ jīntiān zài jiā xuéxí Zhōngwén.</span></div>
+                <div class="example-trans"><span>I study Chinese at home today.</span><span>ዛሬ ቤት ውስጥ ቻይንኛ አጠናለሁ።</span></div>
+                <button class="grammar-cta" onclick="switchScreen('lesson')">Start 5-min lesson <i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="section-title grammar-section-title">Core grammar <span class="level-chip">12 lessons</span></div>
+            <div class="grammar-list">
+                <button class="grammar-row"><span class="grammar-icon blue">是</span><span><b>“To be” with 是</b><small>Identity &amp; descriptions · 6 min</small></span><i class="fas fa-chevron-right"></i></button>
+                <button class="grammar-row"><span class="grammar-icon coral">吗</span><span><b>Questions with 吗</b><small>Turn statements into questions · 5 min</small></span><i class="fas fa-chevron-right"></i></button>
+                <button class="grammar-row"><span class="grammar-icon violet">不</span><span><b>Negatives: 不 vs 没</b><small>Say “not” and “didn't” · 8 min</small></span><i class="fas fa-chevron-right"></i></button>
+                <button class="grammar-row"><span class="grammar-icon mint">的</span><span><b>Possession with 的</b><small>My, your and their things · 7 min</small></span><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
         <!-- LESSON SCREEN -->
         <div class="screen hidden" id="lesson" role="tabpanel" aria-label="Lesson" hidden>
             <div class="lesson-header">
@@ -289,6 +316,7 @@ const markup = `
         <div class="nav-bar" role="tablist" aria-label="Primary">
             <button type="button" class="nav-item active as-control" role="tab" aria-selected="true" data-screen="home" onclick="switchScreen('home')"><i class="fas fa-house" aria-hidden="true"></i>Home</button>
             <button type="button" class="nav-item as-control" role="tab" aria-selected="false" data-screen="vocab" onclick="switchScreen('vocab')"><i class="fas fa-book" aria-hidden="true"></i>Vocab</button>
+            <button type="button" class="nav-item as-control" role="tab" aria-selected="false" data-screen="grammar" onclick="switchScreen('grammar')"><i class="fas fa-language" aria-hidden="true"></i>Grammar</button>
             <button type="button" class="nav-item as-control" role="tab" aria-selected="false" data-screen="lesson" onclick="switchScreen('lesson')"><i class="fas fa-graduation-cap" aria-hidden="true"></i>Lesson</button>
             <button type="button" class="nav-item as-control" role="tab" aria-selected="false" data-screen="journey" onclick="switchScreen('journey')"><i class="fas fa-route" aria-hidden="true"></i>Journey</button>
         </div>
