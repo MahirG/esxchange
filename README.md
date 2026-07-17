@@ -1,42 +1,55 @@
-# LingoBridge
+# Aurora OAuth Authentication UI
 
-A premium multilingual Chinese-learning application built with Next.js and Supabase authentication.
+A premium authentication frontend built with Next.js 15 App Router, TypeScript, Tailwind CSS, shadcn/ui-style components, React Hook Form, Zod, Radix Dialog, Lucide, and Framer Motion.
 
-## Authentication
-
-The application opens on the sign-in screen and keeps the learning workspace hidden until a valid Supabase session exists.
-
-Supported sign-in methods:
-
-- Phone number and password
-- SMS verification for new phone accounts
-- Google OAuth
-- Apple OAuth
-
-Ethiopia is selected by default. Ethiopian mobile numbers are normalized to `+2519XXXXXXXX` and may be entered as either `9XXXXXXXX` or `09XXXXXXXX`.
-
-## Supabase and SMS configuration
-
-Add these public variables to the Vercel project:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-```
-
-Configure the Bird/MessageBird access key only in:
-
-```text
-Supabase → Authentication → Providers → Phone → MessageBird
-```
-
-Enable the Phone provider and save both the Bird access key and approved originator/sender ID in Supabase. Never commit the Bird access key to GitHub and never place it in a `NEXT_PUBLIC_` Vercel variable.
-
-After changing Supabase provider settings, create a new user with a real phone number and confirm that the six-digit OTP is delivered. Supabase provider settings take effect without an application code change; this commit also triggers a fresh Vercel deployment of the verified phone-auth integration.
-
-## Development
+## Start
 
 ```bash
 npm install
 npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Production auth integration
+
+The interface calls Server Actions in `lib/actions/auth.ts`. Replace the demo delays with your identity provider:
+
+- Auth.js
+- Supabase Auth
+- Clerk
+- WorkOS
+- Firebase Auth
+- A custom OIDC/OAuth service
+
+Keep OAuth client secrets and signing secrets server-side. The client should only receive provider redirects or safe action results.
+
+## Structure
+
+```text
+app/
+  globals.css
+  layout.tsx
+  loading.tsx
+  page.tsx
+components/
+  auth/
+    auth-experience.tsx
+    auth-form.tsx
+    auth-visual.tsx
+    floating-field.tsx
+    forgot-password-dialog.tsx
+    oauth-buttons.tsx
+    provider-icons.tsx
+    success-state.tsx
+  ui/
+    button.tsx
+    dialog.tsx
+    input.tsx
+    label.tsx
+    skeleton.tsx
+lib/
+  actions/auth.ts
+  schemas/auth.ts
+  utils.ts
 ```
