@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Building2, ChevronRight, Command } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { AuthMode } from "@/lib/schemas/auth";
 import { cn } from "@/lib/utils";
@@ -10,6 +11,7 @@ import { AuthVisual } from "./auth-visual";
 import { SuccessState } from "./success-state";
 
 export function AuthExperience() {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>("sign-in");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -80,7 +82,7 @@ export function AuthExperience() {
                 {successMessage ? (
                   <SuccessState key="success" message={successMessage} onReset={() => setSuccessMessage("")} />
                 ) : (
-                  <AuthForm key={mode} mode={mode} onSuccess={setSuccessMessage} />
+                  <AuthForm key={mode} mode={mode} onSuccess={() => router.replace("/dashboard")} />
                 )}
               </AnimatePresence>
             </div>
